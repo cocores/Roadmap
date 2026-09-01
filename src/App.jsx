@@ -6,22 +6,23 @@ import Header from './components/Header'
 import InitiativeModal from './components/InitiativeModal'
 import PmAvatarsPanel from './components/PmAvatarsPanel'
 import { firstMonthOfBucket } from './data/constants'
+import {
+  createInitiative,
+  fetchInitiatives,
+  fetchPmAvatars,
+  savePmAvatar,
+  updateInitiative,
+} from './lib/api'
 import { initialInitiatives } from './data/mockInitiatives'
 
-let nextId = initialInitiatives.length + 1
-
-const AVATARS_STORAGE_KEY = 'pm-roadmap:pm-avatars'
-
-function loadStoredAvatars() {
-  try {
-    return JSON.parse(localStorage.getItem(AVATARS_STORAGE_KEY) || '{}')
-  } catch {
-    return {}
-  }
-}
-
 export default function App() {
+  // Seeded with the mock data so the board isn't empty while /api/initiatives
+  // is loading, or if it's unreachable (e.g. plain `vite dev` with no
+  // database connected — see dbConnected below).
   const [initiatives, setInitiatives] = useState(initialInitiatives)
+  const [avatarPaths, setAvatarPaths] = useState({})
+  // null = still checking, true = persisting to the database, false = local-only
+  const [dbConnected, setDbConnected] = useState(null)
   const [view, setView] = useState('Quarter')
   const [pmFilter, setPmFilter] = useState([])
   const [journeyFilter, setJourneyFilter] = useState([])
@@ -34,19 +35,29 @@ export default function App() {
   const [editingInitiative, setEditingInitiative] = useState(null)
   const [archivedPanelOpen, setArchivedPanelOpen] = useState(false)
   const [avatarsPanelOpen, setAvatarsPanelOpen] = useState(false)
-  const [avatarPaths, setAvatarPaths] = useState(loadStoredAvatars)
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
   }, [theme])
 
   useEffect(() => {
-    try {
-      localStorage.setItem(AVATARS_STORAGE_KEY, JSON.stringify(avatarPaths))
-    } catch {
-      // localStorage unavailable (e.g. private browsing) — avatars just won't persist
+    let cancelled = false
+    Promise.all([fetchInitiatives(), fetchPmAvatars()])
+      .then(([loadedInitiatives, loadedAvatars]) => {
+        if (cancelled) return
+        setInitiatives(loadedInitiatives)
+        setAvatarPaths(loadedAvatars)
+        setDbConnected(true)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error('Could not reach the database — using local demo data.', err)
+        setDbConnected(false)
+      })
+    return () => {
+      cancelled = true
     }
-  }, [avatarPaths])
+  }, [])
 
   const archivedInitiatives = useMemo(() => initiatives.filter((i) => i.archived), [initiatives])
 
@@ -80,33 +91,53 @@ export default function App() {
     setEditingInitiative(null)
   }
 
+  // Every mutation below updates local state immediately (so the board never
+  // blocks on the network), then persists in the background. Failures are
+  // logged and flip the `dbConnected` indicator, but never roll back the
+  // local change or interrupt the user — same graceful-degradation approach
+  // as the PM avatar uploads.
+  function persist(promise) {
+    promise
+      .then(() => setDbConnected(true))
+      .catch((err) => {
+        console.error('Failed to save to the database:', err)
+        setDbConnected(false)
+      })
+  }
+
   function handleSave(data) {
     if (data.id) {
       setInitiatives((prev) => prev.map((i) => (i.id === data.id ? { ...i, ...data } : i)))
+      persist(updateInitiative(data.id, data))
     } else {
-      setInitiatives((prev) => [...prev, { ...data, id: `init-${nextId++}` }])
+      const newInitiative = { ...data, id: crypto.randomUUID(), archived: false }
+      setInitiatives((prev) => [...prev, newInitiative])
+      persist(createInitiative(newInitiative))
     }
     closeModal()
   }
 
   function handleArchive(id) {
     setInitiatives((prev) => prev.map((i) => (i.id === id ? { ...i, archived: true } : i)))
+    persist(updateInitiative(id, { archived: true }))
     closeModal()
   }
 
   function handleRestore(id) {
     setInitiatives((prev) => prev.map((i) => (i.id === id ? { ...i, archived: false } : i)))
+    persist(updateInitiative(id, { archived: false }))
   }
 
   function handleAvatarChange(pmName, pathname) {
     setAvatarPaths((prev) => ({ ...prev, [pmName]: pathname }))
+    persist(savePmAvatar(pmName, pathname))
   }
 
   function handleMove(id, bucket, journey) {
     const startMonth = firstMonthOfBucket(bucket, view)
-    setInitiatives((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, startMonth, ...(journey ? { journey } : {}) } : i))
-    )
+    const patch = { startMonth, ...(journey ? { journey } : {}) }
+    setInitiatives((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)))
+    persist(updateInitiative(id, patch))
   }
 
   return (
@@ -118,6 +149,7 @@ export default function App() {
         archivedCount={archivedInitiatives.length}
         onOpenArchive={() => setArchivedPanelOpen(true)}
         onOpenAvatars={() => setAvatarsPanelOpen(true)}
+        dbConnected={dbConnected}
       />
 
       <Controls

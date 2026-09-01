@@ -7,6 +7,7 @@ export default function Header({
   archivedCount,
   onOpenArchive,
   onOpenAvatars,
+  dbConnected,
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur light:border-slate-200 light:bg-white/80">
@@ -26,6 +27,23 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-2">
+          {dbConnected !== null && (
+            <span
+              title={
+                dbConnected
+                  ? 'Connected to the database — changes are saved'
+                  : "Not connected to a database — changes won't be saved"
+              }
+              className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs font-medium sm:flex ${
+                dbConnected
+                  ? 'border-brand-600/30 text-brand-500 light:border-brand-600/30 light:text-brand-700'
+                  : 'border-amber-500/40 text-amber-500'
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${dbConnected ? 'bg-brand-500' : 'bg-amber-500'}`} />
+              {dbConnected ? 'Saved' : 'Local only'}
+            </span>
+          )}
           <button
             type="button"
             onClick={onOpenAvatars}

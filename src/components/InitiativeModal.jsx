@@ -184,7 +184,11 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
             </Field>
           </div>
 
-          <Field label="Health">
+          {/* Plain div, not Field/<label>: a <label> forwards clicks anywhere in
+              its box to the first labelable descendant, which with three
+              buttons here would silently reselect "Red" on a stray click. */}
+          <div className="block">
+            <span className="mb-1.5 block text-xs font-medium text-slate-400 light:text-slate-500">Health</span>
             <div className="flex items-center gap-3">
               <div className="flex flex-col items-center gap-2 rounded-2xl border border-slate-950/80 bg-slate-950 p-2 shadow-inner">
                 {LAMPS.map((lamp) => {
@@ -206,7 +210,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
               </div>
               <span className="text-sm font-medium text-slate-300 light:text-slate-700">{form.health}</span>
             </div>
-          </Field>
+          </div>
 
           <div className="space-y-3 border-t border-slate-800 pt-4 light:border-slate-200">
             <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">Links</span>

@@ -1,10 +1,10 @@
 import { Inbox } from 'lucide-react'
 import { Fragment } from 'react'
-import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, bucketForMonth, journeyColor } from '../data/constants'
+import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, avatarViewUrl, bucketForMonth, journeyColor } from '../data/constants'
 import DropZone from './DropZone'
 import InitiativeCard from './InitiativeCard'
 
-export default function Board({ initiatives, view, groupByJourney, onCardClick, onMove }) {
+export default function Board({ initiatives, view, groupByJourney, onCardClick, onMove, avatarPaths }) {
   const buckets = TIME_VIEWS[view].buckets
 
   function handleDragStart(e, id) {
@@ -56,6 +56,7 @@ export default function Board({ initiatives, view, groupByJourney, onCardClick, 
                           onClick={onCardClick}
                           onDragStart={handleDragStart}
                           showJourney={false}
+                          pmAvatarUrl={avatarViewUrl(avatarPaths[card.pm])}
                         />
                       ))}
                     </DropZone>
@@ -103,6 +104,7 @@ export default function Board({ initiatives, view, groupByJourney, onCardClick, 
                     initiative={card}
                     onClick={onCardClick}
                     onDragStart={handleDragStart}
+                    pmAvatarUrl={avatarViewUrl(avatarPaths[card.pm])}
                   />
                 ))}
               </DropZone>

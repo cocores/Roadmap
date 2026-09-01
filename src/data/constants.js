@@ -95,6 +95,13 @@ export function healthColor(healthName) {
   return HEALTH.find((h) => h.name === healthName)?.color ?? 'slate'
 }
 
+// PM avatars are uploaded as private blobs, so the client always reads
+// them back through the authenticated /api/avatar/view proxy rather than
+// a direct blob URL.
+export function avatarViewUrl(pathname) {
+  return pathname ? `/api/avatar/view?pathname=${encodeURIComponent(pathname)}` : null
+}
+
 export function bucketForMonth(startMonth, view) {
   if (view === 'Month') return MONTHS[startMonth]
   if (view === 'Quarter') return `Q${Math.floor(startMonth / 3) + 1}`

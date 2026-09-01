@@ -1,7 +1,7 @@
 import { Check, ChevronDown, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-export default function MultiSelect({ label, options, selected, onChange }) {
+export default function MultiSelect({ label, options, selected, onChange, getAvatar }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -52,6 +52,7 @@ export default function MultiSelect({ label, options, selected, onChange }) {
             {options.map((opt) => {
               const value = typeof opt === 'string' ? opt : opt.name
               const isSelected = selected.includes(value)
+              const avatarUrl = getAvatar?.(value)
               return (
                 <button
                   key={value}
@@ -59,7 +60,12 @@ export default function MultiSelect({ label, options, selected, onChange }) {
                   onClick={() => toggle(value)}
                   className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-700/60 light:text-slate-700 light:hover:bg-slate-100"
                 >
-                  <span>{value}</span>
+                  <span className="flex items-center gap-2">
+                    {avatarUrl && (
+                      <img src={avatarUrl} alt="" className="h-5 w-5 rounded-full object-cover" />
+                    )}
+                    <span>{value}</span>
+                  </span>
                   {isSelected && <Check size={14} className="text-brand-500" />}
                 </button>
               )

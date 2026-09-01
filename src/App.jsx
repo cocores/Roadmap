@@ -4,10 +4,21 @@ import Board from './components/Board'
 import Controls from './components/Controls'
 import Header from './components/Header'
 import InitiativeModal from './components/InitiativeModal'
+import PmAvatarsPanel from './components/PmAvatarsPanel'
 import { firstMonthOfBucket } from './data/constants'
 import { initialInitiatives } from './data/mockInitiatives'
 
 let nextId = initialInitiatives.length + 1
+
+const AVATARS_STORAGE_KEY = 'pm-roadmap:pm-avatars'
+
+function loadStoredAvatars() {
+  try {
+    return JSON.parse(localStorage.getItem(AVATARS_STORAGE_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
 
 export default function App() {
   const [initiatives, setInitiatives] = useState(initialInitiatives)
@@ -22,10 +33,20 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingInitiative, setEditingInitiative] = useState(null)
   const [archivedPanelOpen, setArchivedPanelOpen] = useState(false)
+  const [avatarsPanelOpen, setAvatarsPanelOpen] = useState(false)
+  const [avatarPaths, setAvatarPaths] = useState(loadStoredAvatars)
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
   }, [theme])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(AVATARS_STORAGE_KEY, JSON.stringify(avatarPaths))
+    } catch {
+      // localStorage unavailable (e.g. private browsing) — avatars just won't persist
+    }
+  }, [avatarPaths])
 
   const archivedInitiatives = useMemo(() => initiatives.filter((i) => i.archived), [initiatives])
 
@@ -77,6 +98,10 @@ export default function App() {
     setInitiatives((prev) => prev.map((i) => (i.id === id ? { ...i, archived: false } : i)))
   }
 
+  function handleAvatarChange(pmName, pathname) {
+    setAvatarPaths((prev) => ({ ...prev, [pmName]: pathname }))
+  }
+
   function handleMove(id, bucket, journey) {
     const startMonth = firstMonthOfBucket(bucket, view)
     setInitiatives((prev) =>
@@ -92,6 +117,7 @@ export default function App() {
         onNewInitiative={openNewModal}
         archivedCount={archivedInitiatives.length}
         onOpenArchive={() => setArchivedPanelOpen(true)}
+        onOpenAvatars={() => setAvatarsPanelOpen(true)}
       />
 
       <Controls
@@ -105,6 +131,7 @@ export default function App() {
         onCoreValueFilterChange={setCoreValueFilter}
         healthFilter={healthFilter}
         onHealthFilterChange={setHealthFilter}
+        avatarPaths={avatarPaths}
         search={search}
         onSearchChange={setSearch}
         groupByJourney={groupByJourney}
@@ -120,6 +147,7 @@ export default function App() {
           groupByJourney={groupByJourney}
           onCardClick={openEditModal}
           onMove={handleMove}
+          avatarPaths={avatarPaths}
         />
       </main>
 
@@ -139,6 +167,14 @@ export default function App() {
           initiatives={archivedInitiatives}
           onClose={() => setArchivedPanelOpen(false)}
           onRestore={handleRestore}
+        />
+      )}
+
+      {avatarsPanelOpen && (
+        <PmAvatarsPanel
+          avatarPaths={avatarPaths}
+          onAvatarChange={handleAvatarChange}
+          onClose={() => setAvatarsPanelOpen(false)}
         />
       )}
     </div>

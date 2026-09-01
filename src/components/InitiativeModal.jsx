@@ -1,7 +1,6 @@
 import { Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import {
-  COLOR_CLASSES,
   CORE_VALUES,
   HEALTH,
   JOURNEYS,
@@ -10,10 +9,18 @@ import {
   TIME_VIEWS,
   bucketForMonth,
   firstMonthOfBucket,
-  healthColor,
 } from '../data/constants'
 
 const NO_CORE_VALUE = 'None'
+
+// Real traffic lights run red-top to green-bottom, and stay lit/unlit in
+// their own hue regardless of app theme, so this is hand-styled rather
+// than driven by the shared COLOR_CLASSES badge palette.
+const LAMPS = [
+  { name: 'Red', lit: 'bg-red-500 shadow-[0_0_10px_2px] shadow-red-500/70', off: 'bg-red-950 ring-1 ring-inset ring-red-900/60' },
+  { name: 'Yellow', lit: 'bg-yellow-400 shadow-[0_0_10px_2px] shadow-yellow-400/70', off: 'bg-yellow-950 ring-1 ring-inset ring-yellow-900/60' },
+  { name: 'Green', lit: 'bg-green-500 shadow-[0_0_10px_2px] shadow-green-500/70', off: 'bg-green-950 ring-1 ring-inset ring-green-900/60' },
+]
 
 function buildForm(view, initiative) {
   if (!initiative) {
@@ -178,26 +185,26 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
           </div>
 
           <Field label="Health">
-            <div className="flex items-center gap-2">
-              {HEALTH.map((h) => {
-                const isSelected = form.health === h.name
-                return (
-                  <button
-                    key={h.name}
-                    type="button"
-                    onClick={() => update('health', h.name)}
-                    title={h.name}
-                    aria-label={h.name}
-                    aria-pressed={isSelected}
-                    className={`h-7 w-7 rounded-full ${COLOR_CLASSES[healthColor(h.name)].solid} transition ${
-                      isSelected
-                        ? 'ring-2 ring-offset-2 ring-slate-400 ring-offset-slate-900 light:ring-slate-500 light:ring-offset-white'
-                        : 'opacity-40 hover:opacity-70'
-                    }`}
-                  />
-                )
-              })}
-              <span className="text-xs text-slate-400 light:text-slate-500">{form.health}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-center gap-2 rounded-2xl border border-slate-950/80 bg-slate-950 p-2 shadow-inner">
+                {LAMPS.map((lamp) => {
+                  const isSelected = form.health === lamp.name
+                  return (
+                    <button
+                      key={lamp.name}
+                      type="button"
+                      onClick={() => update('health', lamp.name)}
+                      title={lamp.name}
+                      aria-label={lamp.name}
+                      aria-pressed={isSelected}
+                      className={`h-6 w-6 rounded-full transition ${
+                        isSelected ? lamp.lit : `${lamp.off} opacity-80 hover:opacity-100`
+                      }`}
+                    />
+                  )
+                })}
+              </div>
+              <span className="text-sm font-medium text-slate-300 light:text-slate-700">{form.health}</span>
             </div>
           </Field>
 

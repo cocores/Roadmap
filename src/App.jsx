@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import ArchivedPanel from './components/ArchivedPanel'
 import Board from './components/Board'
 import Controls from './components/Controls'
 import Header from './components/Header'
@@ -20,14 +21,18 @@ export default function App() {
   const [theme, setTheme] = useState('dark')
   const [modalOpen, setModalOpen] = useState(false)
   const [editingInitiative, setEditingInitiative] = useState(null)
+  const [archivedPanelOpen, setArchivedPanelOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
   }, [theme])
 
+  const archivedInitiatives = useMemo(() => initiatives.filter((i) => i.archived), [initiatives])
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     return initiatives.filter((i) => {
+      if (i.archived) return false
       if (pmFilter.length && !pmFilter.includes(i.pm)) return false
       if (journeyFilter.length && !journeyFilter.includes(i.journey)) return false
       if (coreValueFilter.length && !coreValueFilter.includes(i.coreValue)) return false
@@ -63,9 +68,13 @@ export default function App() {
     closeModal()
   }
 
-  function handleDelete(id) {
-    setInitiatives((prev) => prev.filter((i) => i.id !== id))
+  function handleArchive(id) {
+    setInitiatives((prev) => prev.map((i) => (i.id === id ? { ...i, archived: true } : i)))
     closeModal()
+  }
+
+  function handleRestore(id) {
+    setInitiatives((prev) => prev.map((i) => (i.id === id ? { ...i, archived: false } : i)))
   }
 
   function handleMove(id, bucket, journey) {
@@ -81,6 +90,8 @@ export default function App() {
         theme={theme}
         onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
         onNewInitiative={openNewModal}
+        archivedCount={archivedInitiatives.length}
+        onOpenArchive={() => setArchivedPanelOpen(true)}
       />
 
       <Controls
@@ -99,7 +110,7 @@ export default function App() {
         groupByJourney={groupByJourney}
         onToggleGroup={() => setGroupByJourney((g) => !g)}
         visibleCount={filtered.length}
-        totalCount={initiatives.length}
+        totalCount={initiatives.length - archivedInitiatives.length}
       />
 
       <main className="mx-auto max-w-[1600px] px-6 py-5">
@@ -119,7 +130,15 @@ export default function App() {
           initiative={editingInitiative}
           onClose={closeModal}
           onSave={handleSave}
-          onDelete={handleDelete}
+          onArchive={handleArchive}
+        />
+      )}
+
+      {archivedPanelOpen && (
+        <ArchivedPanel
+          initiatives={archivedInitiatives}
+          onClose={() => setArchivedPanelOpen(false)}
+          onRestore={handleRestore}
         />
       )}
     </div>

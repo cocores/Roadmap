@@ -10,6 +10,7 @@ import {
   bucketForMonth,
   firstMonthOfBucket,
 } from '../data/constants'
+import ConfirmDialog from './ConfirmDialog'
 
 const NO_CORE_VALUE = 'None'
 
@@ -59,8 +60,9 @@ function buildForm(view, initiative) {
 
 // Mounted only while open (parent keys it per initiative), so state can
 // initialize straight from props with no reset effect needed.
-export default function InitiativeModal({ view, initiative, onClose, onSave, onDelete }) {
+export default function InitiativeModal({ view, initiative, onClose, onSave, onArchive }) {
   const [form, setForm] = useState(() => buildForm(view, initiative))
+  const [confirmArchive, setConfirmArchive] = useState(false)
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -91,6 +93,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
   }
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl light:border-slate-200 light:bg-white">
         <div className="mb-5 flex items-center justify-between">
@@ -268,7 +271,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
             {initiative ? (
               <button
                 type="button"
-                onClick={() => onDelete(initiative.id)}
+                onClick={() => setConfirmArchive(true)}
                 className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10"
               >
                 <Trash2 size={15} />
@@ -296,6 +299,16 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
         </form>
       </div>
     </div>
+    {confirmArchive && (
+      <ConfirmDialog
+        title="Delete this initiative?"
+        message={`"${initiative.title}" will be moved to Archived. You can restore it from there anytime.`}
+        confirmLabel="Delete"
+        onCancel={() => setConfirmArchive(false)}
+        onConfirm={() => onArchive(initiative.id)}
+      />
+    )}
+    </>
   )
 }
 

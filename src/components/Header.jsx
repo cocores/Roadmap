@@ -1,6 +1,6 @@
-import { Map, Moon, Plus, Sun } from 'lucide-react'
+import { Archive, Map, Moon, Plus, Sun } from 'lucide-react'
 
-export default function Header({ theme, onToggleTheme, onNewInitiative }) {
+export default function Header({ theme, onToggleTheme, onNewInitiative, archivedCount, onOpenArchive }) {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur light:border-slate-200 light:bg-white/80">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 py-4">
@@ -19,6 +19,19 @@ export default function Header({ theme, onToggleTheme, onNewInitiative }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onOpenArchive}
+            className="flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-300 hover:border-slate-600 hover:text-slate-100 light:border-slate-300 light:bg-white light:text-slate-600 light:hover:border-slate-400 light:hover:text-slate-800"
+          >
+            <Archive size={15} />
+            Archived
+            {archivedCount > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-700 px-1 text-xs font-semibold text-slate-200 light:bg-slate-200 light:text-slate-700">
+                {archivedCount}
+              </span>
+            )}
+          </button>
           <button
             type="button"
             onClick={onToggleTheme}

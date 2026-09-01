@@ -1,6 +1,8 @@
 import { Trash2, X } from 'lucide-react'
 import { useState } from 'react'
-import { JOURNEYS, PMS, STATUSES, TIME_VIEWS, bucketForMonth, firstMonthOfBucket } from '../data/constants'
+import { CORE_VALUES, JOURNEYS, PMS, STATUSES, TIME_VIEWS, bucketForMonth, firstMonthOfBucket } from '../data/constants'
+
+const NO_CORE_VALUE = 'None'
 
 function buildForm(view, initiative) {
   if (!initiative) {
@@ -9,6 +11,7 @@ function buildForm(view, initiative) {
       description: '',
       pm: PMS[0].name,
       journey: JOURNEYS[0].name,
+      coreValue: NO_CORE_VALUE,
       status: STATUSES[0].name,
       progress: 0,
       impact: '',
@@ -21,6 +24,7 @@ function buildForm(view, initiative) {
     description: initiative.description,
     pm: initiative.pm,
     journey: initiative.journey,
+    coreValue: initiative.coreValue || NO_CORE_VALUE,
     status: initiative.status,
     progress: initiative.progress,
     impact: initiative.impact,
@@ -47,6 +51,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
       description: form.description.trim(),
       pm: form.pm,
       journey: form.journey,
+      coreValue: form.coreValue === NO_CORE_VALUE ? null : form.coreValue,
       status: form.status,
       progress: Number(form.progress),
       impact: form.impact.trim(),
@@ -68,7 +73,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 light:hover:bg-slate-100 light:hover:text-slate-700"
+            className="rounded-full p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 light:hover:bg-slate-100 light:hover:text-slate-700"
           >
             <X size={18} />
           </button>
@@ -120,6 +125,17 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
             </Field>
           </div>
 
+          <Field label="Core Value (optional)">
+            <select value={form.coreValue} onChange={(e) => update('coreValue', e.target.value)} className={inputClass}>
+              <option value={NO_CORE_VALUE}>None</option>
+              {CORE_VALUES.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
           <div className="grid grid-cols-2 gap-3">
             <Field label={`Time Bucket (${TIME_VIEWS[view].label})`}>
               <select value={form.bucket} onChange={(e) => update('bucket', e.target.value)} className={inputClass}>
@@ -149,7 +165,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
                 max={100}
                 value={form.progress}
                 onChange={(e) => update('progress', e.target.value)}
-                className="w-full accent-indigo-500"
+                className="w-full accent-brand-600"
               />
             </Field>
             <Field label="Target Impact">
@@ -176,7 +192,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
               <button
                 type="button"
                 onClick={() => onDelete(initiative.id)}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10"
+                className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10"
               >
                 <Trash2 size={15} />
                 Delete
@@ -188,13 +204,13 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 light:border-slate-300 light:text-slate-600 light:hover:bg-slate-100"
+                className="rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 light:border-slate-300 light:text-slate-600 light:hover:bg-slate-100"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-400"
+                className="rounded-full bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-brand-600/25 hover:bg-brand-500"
               >
                 {initiative ? 'Save Changes' : 'Create Initiative'}
               </button>
@@ -207,7 +223,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
 }
 
 const inputClass =
-  'w-full rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500 light:border-slate-300 light:bg-white light:text-slate-800'
+  'w-full rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-200 outline-none focus:border-brand-500 light:border-slate-300 light:bg-white light:text-slate-800'
 
 function Field({ label, children }) {
   return (

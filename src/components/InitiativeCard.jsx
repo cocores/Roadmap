@@ -1,17 +1,18 @@
 import { Target } from 'lucide-react'
-import { COLOR_CLASSES, journeyColor, pmColor, statusColor } from '../data/constants'
+import { COLOR_CLASSES, coreValueColor, journeyColor, pmColor, statusColor } from '../data/constants'
 
 export default function InitiativeCard({ initiative, onClick, onDragStart, showJourney = true }) {
   const pmC = COLOR_CLASSES[pmColor(initiative.pm)]
   const journeyC = COLOR_CLASSES[journeyColor(initiative.journey)]
   const statusC = COLOR_CLASSES[statusColor(initiative.status)]
+  const coreValueC = initiative.coreValue ? COLOR_CLASSES[coreValueColor(initiative.coreValue)] : null
 
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart(e, initiative.id)}
       onClick={() => onClick(initiative)}
-      className="group cursor-grab rounded-xl border border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 active:cursor-grabbing light:border-slate-200 light:bg-white light:hover:border-indigo-400/60"
+      className="group cursor-grab rounded-2xl border border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-600/10 active:cursor-grabbing light:border-slate-200 light:bg-white light:hover:border-brand-500/60"
     >
       <div className="flex items-start justify-between gap-2">
         <h4 className="text-sm font-semibold leading-snug text-slate-100 light:text-slate-900">
@@ -38,6 +39,11 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
         {showJourney && (
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${journeyC.badge}`}>
             {initiative.journey}
+          </span>
+        )}
+        {coreValueC && (
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${coreValueC.badge}`}>
+            {initiative.coreValue}
           </span>
         )}
       </div>

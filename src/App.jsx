@@ -13,6 +13,7 @@ export default function App() {
   const [view, setView] = useState('Quarter')
   const [pmFilter, setPmFilter] = useState([])
   const [journeyFilter, setJourneyFilter] = useState([])
+  const [coreValueFilter, setCoreValueFilter] = useState([])
   const [search, setSearch] = useState('')
   const [groupByJourney, setGroupByJourney] = useState(true)
   const [theme, setTheme] = useState('dark')
@@ -28,12 +29,13 @@ export default function App() {
     return initiatives.filter((i) => {
       if (pmFilter.length && !pmFilter.includes(i.pm)) return false
       if (journeyFilter.length && !journeyFilter.includes(i.journey)) return false
+      if (coreValueFilter.length && !coreValueFilter.includes(i.coreValue)) return false
       if (q && !i.title.toLowerCase().includes(q) && !i.tags.some((t) => t.toLowerCase().includes(q))) {
         return false
       }
       return true
     })
-  }, [initiatives, pmFilter, journeyFilter, search])
+  }, [initiatives, pmFilter, journeyFilter, coreValueFilter, search])
 
   function openNewModal() {
     setEditingInitiative(null)
@@ -72,7 +74,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 light:bg-slate-50 light:text-slate-900">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 light:bg-paper light:text-slate-900">
       <Header
         theme={theme}
         onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
@@ -86,6 +88,8 @@ export default function App() {
         onPmFilterChange={setPmFilter}
         journeyFilter={journeyFilter}
         onJourneyFilterChange={setJourneyFilter}
+        coreValueFilter={coreValueFilter}
+        onCoreValueFilterChange={setCoreValueFilter}
         search={search}
         onSearchChange={setSearch}
         groupByJourney={groupByJourney}

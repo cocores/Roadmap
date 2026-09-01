@@ -18,7 +18,7 @@ export default function DropZone({ onDrop, className = '', children }) {
         if (id) onDrop(id)
       }}
       className={`${className} ${
-        isOver ? 'ring-2 ring-indigo-400/70 bg-indigo-500/5' : ''
+        isOver ? 'ring-2 ring-brand-400/70 bg-brand-500/5' : ''
       } transition-colors`}
     >
       {children}

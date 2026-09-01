@@ -1,5 +1,5 @@
 import { LayoutGrid, Rows3, Search } from 'lucide-react'
-import { CORE_VALUES, JOURNEYS, PMS, TIME_VIEWS } from '../data/constants'
+import { CORE_VALUES, HEALTH, JOURNEYS, PMS, TIME_VIEWS } from '../data/constants'
 import MultiSelect from './MultiSelect'
 
 export default function Controls({
@@ -11,6 +11,8 @@ export default function Controls({
   onJourneyFilterChange,
   coreValueFilter,
   onCoreValueFilterChange,
+  healthFilter,
+  onHealthFilterChange,
   search,
   onSearchChange,
   groupByJourney,
@@ -53,6 +55,7 @@ export default function Controls({
           selected={coreValueFilter}
           onChange={onCoreValueFilterChange}
         />
+        <MultiSelect label="Health" options={HEALTH} selected={healthFilter} onChange={onHealthFilterChange} />
 
         <div className="relative flex-1 min-w-[200px]">
           <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -90,6 +93,7 @@ export default function Controls({
         {coreValueFilter.length > 0 && (
           <> tagged with {coreValueFilter.length} selected core value{coreValueFilter.length > 1 ? 's' : ''}</>
         )}
+        {healthFilter.length > 0 && <> with {healthFilter.length} selected health status{healthFilter.length > 1 ? 'es' : ''}</>}
         {search && <> matching “{search}”</>}
       </p>
     </div>

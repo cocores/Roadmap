@@ -1,6 +1,17 @@
 import { Trash2, X } from 'lucide-react'
 import { useState } from 'react'
-import { CORE_VALUES, JOURNEYS, PMS, STATUSES, TIME_VIEWS, bucketForMonth, firstMonthOfBucket } from '../data/constants'
+import {
+  COLOR_CLASSES,
+  CORE_VALUES,
+  HEALTH,
+  JOURNEYS,
+  PMS,
+  STATUSES,
+  TIME_VIEWS,
+  bucketForMonth,
+  firstMonthOfBucket,
+  healthColor,
+} from '../data/constants'
 
 const NO_CORE_VALUE = 'None'
 
@@ -13,10 +24,13 @@ function buildForm(view, initiative) {
       journey: JOURNEYS[0].name,
       coreValue: NO_CORE_VALUE,
       status: STATUSES[0].name,
+      health: HEALTH[0].name,
       progress: 0,
       impact: '',
       tags: '',
       bucket: TIME_VIEWS[view].buckets[0],
+      trackerLink: '',
+      confluenceLink: '',
     }
   }
   return {
@@ -26,10 +40,13 @@ function buildForm(view, initiative) {
     journey: initiative.journey,
     coreValue: initiative.coreValue || NO_CORE_VALUE,
     status: initiative.status,
+    health: initiative.health || HEALTH[0].name,
     progress: initiative.progress,
     impact: initiative.impact,
     tags: initiative.tags.join(', '),
     bucket: bucketForMonth(initiative.startMonth, view),
+    trackerLink: initiative.trackerLink || '',
+    confluenceLink: initiative.confluenceLink || '',
   }
 }
 
@@ -53,6 +70,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
       journey: form.journey,
       coreValue: form.coreValue === NO_CORE_VALUE ? null : form.coreValue,
       status: form.status,
+      health: form.health,
       progress: Number(form.progress),
       impact: form.impact.trim(),
       tags: form.tags
@@ -60,6 +78,8 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
         .map((t) => t.trim())
         .filter(Boolean),
       startMonth: firstMonthOfBucket(form.bucket, view),
+      trackerLink: form.trackerLink.trim(),
+      confluenceLink: form.confluenceLink.trim(),
     })
   }
 
@@ -154,6 +174,52 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onD
                   </option>
                 ))}
               </select>
+            </Field>
+          </div>
+
+          <Field label="Health">
+            <div className="flex items-center gap-2">
+              {HEALTH.map((h) => {
+                const isSelected = form.health === h.name
+                return (
+                  <button
+                    key={h.name}
+                    type="button"
+                    onClick={() => update('health', h.name)}
+                    title={h.name}
+                    aria-label={h.name}
+                    aria-pressed={isSelected}
+                    className={`h-7 w-7 rounded-full ${COLOR_CLASSES[healthColor(h.name)].solid} transition ${
+                      isSelected
+                        ? 'ring-2 ring-offset-2 ring-slate-400 ring-offset-slate-900 light:ring-slate-500 light:ring-offset-white'
+                        : 'opacity-40 hover:opacity-70'
+                    }`}
+                  />
+                )
+              })}
+              <span className="text-xs text-slate-400 light:text-slate-500">{form.health}</span>
+            </div>
+          </Field>
+
+          <div className="space-y-3 border-t border-slate-800 pt-4 light:border-slate-200">
+            <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">Links</span>
+            <Field label="Epic / PMO / Jira Ticket Link">
+              <input
+                type="url"
+                value={form.trackerLink}
+                onChange={(e) => update('trackerLink', e.target.value)}
+                className={inputClass}
+                placeholder="https://jira.example.com/browse/BH-1234"
+              />
+            </Field>
+            <Field label="Confluence Link">
+              <input
+                type="url"
+                value={form.confluenceLink}
+                onChange={(e) => update('confluenceLink', e.target.value)}
+                className={inputClass}
+                placeholder="https://confluence.example.com/display/..."
+              />
             </Field>
           </div>
 

@@ -14,6 +14,7 @@ export default function App() {
   const [pmFilter, setPmFilter] = useState([])
   const [journeyFilter, setJourneyFilter] = useState([])
   const [coreValueFilter, setCoreValueFilter] = useState([])
+  const [healthFilter, setHealthFilter] = useState([])
   const [search, setSearch] = useState('')
   const [groupByJourney, setGroupByJourney] = useState(true)
   const [theme, setTheme] = useState('dark')
@@ -30,12 +31,13 @@ export default function App() {
       if (pmFilter.length && !pmFilter.includes(i.pm)) return false
       if (journeyFilter.length && !journeyFilter.includes(i.journey)) return false
       if (coreValueFilter.length && !coreValueFilter.includes(i.coreValue)) return false
+      if (healthFilter.length && !healthFilter.includes(i.health)) return false
       if (q && !i.title.toLowerCase().includes(q) && !i.tags.some((t) => t.toLowerCase().includes(q))) {
         return false
       }
       return true
     })
-  }, [initiatives, pmFilter, journeyFilter, coreValueFilter, search])
+  }, [initiatives, pmFilter, journeyFilter, coreValueFilter, healthFilter, search])
 
   function openNewModal() {
     setEditingInitiative(null)
@@ -90,6 +92,8 @@ export default function App() {
         onJourneyFilterChange={setJourneyFilter}
         coreValueFilter={coreValueFilter}
         onCoreValueFilterChange={setCoreValueFilter}
+        healthFilter={healthFilter}
+        onHealthFilterChange={setHealthFilter}
         search={search}
         onSearchChange={setSearch}
         groupByJourney={groupByJourney}

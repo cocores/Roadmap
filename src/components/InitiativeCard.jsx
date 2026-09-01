@@ -1,18 +1,27 @@
-import { Target } from 'lucide-react'
+import { BookOpen, Link2, Target } from 'lucide-react'
 import { COLOR_CLASSES, coreValueColor, journeyColor, pmColor, statusColor } from '../data/constants'
+
+const HEALTH_BORDER = {
+  Green: 'border-l-green-500',
+  Yellow: 'border-l-yellow-500',
+  Red: 'border-l-red-500',
+}
 
 export default function InitiativeCard({ initiative, onClick, onDragStart, showJourney = true }) {
   const pmC = COLOR_CLASSES[pmColor(initiative.pm)]
   const journeyC = COLOR_CLASSES[journeyColor(initiative.journey)]
   const statusC = COLOR_CLASSES[statusColor(initiative.status)]
   const coreValueC = initiative.coreValue ? COLOR_CLASSES[coreValueColor(initiative.coreValue)] : null
+  const healthBorder = HEALTH_BORDER[initiative.health] ?? 'border-l-slate-700 light:border-l-slate-300'
+  const hasLinks = initiative.trackerLink || initiative.confluenceLink
 
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart(e, initiative.id)}
       onClick={() => onClick(initiative)}
-      className="group cursor-grab rounded-2xl border border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-600/10 active:cursor-grabbing light:border-slate-200 light:bg-white light:hover:border-brand-500/60"
+      title={initiative.health ? `Health: ${initiative.health}` : undefined}
+      className={`group cursor-grab rounded-2xl border border-l-4 border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-600/10 active:cursor-grabbing light:border-slate-200 light:bg-white light:hover:border-brand-500/60 ${healthBorder}`}
     >
       <div className="flex items-start justify-between gap-2">
         <h4 className="text-sm font-semibold leading-snug text-slate-100 light:text-slate-900">
@@ -62,6 +71,35 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
         </div>
         <div className="mt-1 text-right text-[10px] text-slate-500">{initiative.progress}%</div>
       </div>
+
+      {hasLinks && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-2.5 light:border-slate-200">
+          {initiative.trackerLink && (
+            <a
+              href={initiative.trackerLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-brand-400 light:text-slate-500 light:hover:text-brand-700"
+            >
+              <Link2 size={12} />
+              Ticket
+            </a>
+          )}
+          {initiative.confluenceLink && (
+            <a
+              href={initiative.confluenceLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-brand-400 light:text-slate-500 light:hover:text-brand-700"
+            >
+              <BookOpen size={12} />
+              Docs
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }

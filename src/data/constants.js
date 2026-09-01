@@ -35,6 +35,13 @@ export const STATUSES = [
   { name: 'Live', color: 'green' },
 ]
 
+// Stop-light project health.
+export const HEALTH = [
+  { name: 'Green', color: 'green' },
+  { name: 'Yellow', color: 'yellow' },
+  { name: 'Red', color: 'red' },
+]
+
 // B&H's four stated core values, offered as an optional tag on initiatives.
 export const CORE_VALUES = [
   { name: 'Be Honest', color: 'purple' },
@@ -82,6 +89,10 @@ export function statusColor(statusName) {
 
 export function coreValueColor(coreValueName) {
   return CORE_VALUES.find((c) => c.name === coreValueName)?.color ?? 'slate'
+}
+
+export function healthColor(healthName) {
+  return HEALTH.find((h) => h.name === healthName)?.color ?? 'slate'
 }
 
 export function bucketForMonth(startMonth, view) {

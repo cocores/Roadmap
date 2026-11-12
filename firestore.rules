@@ -1,0 +1,13 @@
+rules_version = '2';
+
+// ⚠️ The app has no sign-in yet, so these rules let anyone with the app's
+// Firebase config read and write the roadmap. Fine for an internal
+// prototype; tighten them (e.g. require request.auth != null) once
+// Firebase Auth is added.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /initiatives/{id} {
+      allow read, write: if true;
+    }
+  }
+}

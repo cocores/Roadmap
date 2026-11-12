@@ -1,4 +1,4 @@
-import { Archive, Map, Moon, Plus, Sun, Users } from 'lucide-react'
+import { Archive, Map, Moon, Plus, Sun } from 'lucide-react'
 
 export default function Header({
   theme,
@@ -6,7 +6,6 @@ export default function Header({
   onNewInitiative,
   archivedCount,
   onOpenArchive,
-  onOpenAvatars,
   dbConnected,
 }) {
   return (
@@ -44,14 +43,6 @@ export default function Header({
               {dbConnected ? 'Saved' : 'Local only'}
             </span>
           )}
-          <button
-            type="button"
-            onClick={onOpenAvatars}
-            className="flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-300 hover:border-slate-600 hover:text-slate-100 light:border-slate-300 light:bg-white light:text-slate-600 light:hover:border-slate-400 light:hover:text-slate-800"
-          >
-            <Users size={15} />
-            PM Avatars
-          </button>
           <button
             type="button"
             onClick={onOpenArchive}

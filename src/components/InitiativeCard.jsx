@@ -7,7 +7,7 @@ const HEALTH_BORDER = {
   Red: 'border-l-red-500',
 }
 
-export default function InitiativeCard({ initiative, onClick, onDragStart, showJourney = true, pmAvatarUrl }) {
+export default function InitiativeCard({ initiative, onClick, onDragStart, showJourney = true }) {
   const pmC = COLOR_CLASSES[pmColor(initiative.pm)]
   const journeyC = COLOR_CLASSES[journeyColor(initiative.journey)]
   const statusC = COLOR_CLASSES[statusColor(initiative.status)]
@@ -42,11 +42,7 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
         <span
           className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${pmC.badge}`}
         >
-          {pmAvatarUrl ? (
-            <img src={pmAvatarUrl} alt="" className="h-3.5 w-3.5 rounded-full object-cover" />
-          ) : (
-            <span className={`h-1.5 w-1.5 rounded-full ${pmC.solid}`} />
-          )}
+          <span className={`h-1.5 w-1.5 rounded-full ${pmC.solid}`} />
           {initiative.pm}
         </span>
         {showJourney && (

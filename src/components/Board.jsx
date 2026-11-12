@@ -1,11 +1,23 @@
-import { Inbox } from 'lucide-react'
+import { EyeOff, Inbox } from 'lucide-react'
 import { Fragment } from 'react'
-import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, avatarViewUrl, bucketForMonth, journeyColor } from '../data/constants'
+import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, bucketForMonth, journeyColor } from '../data/constants'
 import DropZone from './DropZone'
 import InitiativeCard from './InitiativeCard'
 
-export default function Board({ initiatives, view, groupByJourney, onCardClick, onMove, avatarPaths }) {
+export default function Board({
+  initiatives,
+  view,
+  groupByJourney,
+  journeyFilter = [],
+  onHideJourney,
+  onCardClick,
+  onMove,
+}) {
   const buckets = TIME_VIEWS[view].buckets
+  // With a Journey filter active, only those journeys get a row; otherwise all.
+  const visibleJourneys = journeyFilter.length
+    ? JOURNEYS.filter((j) => journeyFilter.includes(j.name))
+    : JOURNEYS
 
   function handleDragStart(e, id) {
     e.dataTransfer.setData('text/initiative-id', id)
@@ -29,15 +41,26 @@ export default function Board({ initiatives, view, groupByJourney, onCardClick, 
             </div>
           ))}
 
-          {JOURNEYS.map((journey) => {
+          {visibleJourneys.map((journey) => {
             const jc = COLOR_CLASSES[journeyColor(journey.name)]
             return (
               <Fragment key={journey.name}>
                 <div
-                  className="sticky left-0 flex items-center rounded-lg border border-slate-800 bg-slate-900/60 px-2.5 py-2 text-xs font-semibold light:border-slate-200 light:bg-slate-50"
+                  className="group sticky left-0 flex items-center rounded-lg border border-slate-800 bg-slate-900/60 px-2.5 py-2 text-xs font-semibold light:border-slate-200 light:bg-slate-50"
                 >
-                  <span className={`mr-1.5 h-2 w-2 rounded-full ${jc.solid}`} />
-                  <span className="text-slate-200 light:text-slate-700">{journey.name}</span>
+                  <span className={`mr-1.5 h-2 w-2 shrink-0 rounded-full ${jc.solid}`} />
+                  <span className="flex-1 text-slate-200 light:text-slate-700">{journey.name}</span>
+                  {onHideJourney && visibleJourneys.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => onHideJourney(journey.name)}
+                      title={`Hide ${journey.name}`}
+                      aria-label={`Hide ${journey.name}`}
+                      className="ml-1 rounded p-1 text-slate-500 opacity-0 transition hover:bg-slate-800 hover:text-slate-200 focus:opacity-100 group-hover:opacity-100 light:hover:bg-slate-200 light:hover:text-slate-700"
+                    >
+                      <EyeOff size={13} />
+                    </button>
+                  )}
                 </div>
                 {buckets.map((bucket) => {
                   const cards = initiatives.filter(
@@ -56,7 +79,6 @@ export default function Board({ initiatives, view, groupByJourney, onCardClick, 
                           onClick={onCardClick}
                           onDragStart={handleDragStart}
                           showJourney={false}
-                          pmAvatarUrl={avatarViewUrl(avatarPaths[card.pm])}
                         />
                       ))}
                     </DropZone>
@@ -104,7 +126,6 @@ export default function Board({ initiatives, view, groupByJourney, onCardClick, 
                     initiative={card}
                     onClick={onCardClick}
                     onDragStart={handleDragStart}
-                    pmAvatarUrl={avatarViewUrl(avatarPaths[card.pm])}
                   />
                 ))}
               </DropZone>

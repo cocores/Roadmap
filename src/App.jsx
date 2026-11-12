@@ -16,9 +16,9 @@ import {
 import { initialInitiatives } from './data/mockInitiatives'
 
 export default function App() {
-  // Seeded with the mock data so the board isn't empty while /api/initiatives
-  // is loading, or if it's unreachable (e.g. plain `vite dev` with no
-  // database connected — see dbConnected below).
+  // Seeded with the mock data so the board isn't empty while Firestore
+  // is loading, or if it's unreachable (e.g. Firestore rules deny access or
+  // the network is down — see dbConnected below).
   const [initiatives, setInitiatives] = useState(initialInitiatives)
   const [avatarPaths, setAvatarPaths] = useState({})
   // null = still checking, true = persisting to the database, false = local-only

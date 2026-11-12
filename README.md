@@ -12,7 +12,7 @@ A collaborative product manager roadmap board built with React, Tailwind CSS, an
 - **Filters & search** — multi-select PM and Journey filters, plus title/tag search, with a live "showing X of Y" indicator.
 - **Add/Edit modal** — create or update an initiative's title, description, PM, journey, time bucket, status, progress, impact metric, and tags.
 - **Dark/light mode** — dark-slate aesthetic by default, toggleable to light.
-- **Persistence** — initiatives and PM avatar metadata are saved to Firebase Cloud Firestore (avatar images themselves go to Vercel Blob); a "Saved" / "Local only" indicator in the header shows whether Firestore is reachable.
+- **Persistence** — initiatives are saved to Firebase Cloud Firestore; a "Saved" / "Local only" indicator in the header shows whether Firestore is reachable.
 
 ## Development
 
@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` talks to Firestore directly from the browser, so initiatives persist even under plain Vite. Avatar uploads go through the `/api/avatar/*` routes, which need the Vercel CLI: `vercel dev`.
+`npm run dev` talks to Firestore directly from the browser, so initiatives persist even under plain Vite — there are no server routes.
 
 ## Database setup
 
@@ -31,12 +31,9 @@ Data lives in the Firebase project `roadmap-919ae` (config in `src/lib/firebase.
 2. Open the **Rules** tab, paste in the contents of `firestore.rules`, and click **Publish**. Without this, Firestore denies every request and the app stays in "Local only" mode.
 3. Load the app. If the `initiatives` collection is empty, the app seeds it with the demo initiatives automatically.
 
-Collections:
+Collection:
 
 - `initiatives/{id}` — one document per initiative (title, description, pm, journey, coreValue, status, health, progress, impact, tags, startMonth, trackerLink, confluenceLink, archived, createdAt, updatedAt).
-- `pmAvatars/{pmName}` — `{ pathname, updatedAt }`, pointing at the avatar image in Vercel Blob.
-
-For avatar uploads, also create a **Blob** store in the Vercel dashboard (**Storage → Create Database → Blob**) and pull its token with `vercel env pull .env.local`.
 
 ## Build
 

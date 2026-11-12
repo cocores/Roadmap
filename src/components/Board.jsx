@@ -1,6 +1,6 @@
 import { EyeOff, Inbox } from 'lucide-react'
 import { Fragment } from 'react'
-import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, avatarViewUrl, bucketForMonth, journeyColor } from '../data/constants'
+import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, bucketForMonth, journeyColor } from '../data/constants'
 import DropZone from './DropZone'
 import InitiativeCard from './InitiativeCard'
 
@@ -12,7 +12,6 @@ export default function Board({
   onHideJourney,
   onCardClick,
   onMove,
-  avatarPaths,
 }) {
   const buckets = TIME_VIEWS[view].buckets
   // With a Journey filter active, only those journeys get a row; otherwise all.
@@ -80,7 +79,6 @@ export default function Board({
                           onClick={onCardClick}
                           onDragStart={handleDragStart}
                           showJourney={false}
-                          pmAvatarUrl={avatarViewUrl(avatarPaths[card.pm])}
                         />
                       ))}
                     </DropZone>
@@ -128,7 +126,6 @@ export default function Board({
                     initiative={card}
                     onClick={onCardClick}
                     onDragStart={handleDragStart}
-                    pmAvatarUrl={avatarViewUrl(avatarPaths[card.pm])}
                   />
                 ))}
               </DropZone>

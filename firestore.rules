@@ -9,8 +9,5 @@ service cloud.firestore {
     match /initiatives/{id} {
       allow read, write: if true;
     }
-    match /pmAvatars/{pmName} {
-      allow read, write: if true;
-    }
   }
 }

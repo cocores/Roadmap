@@ -1,5 +1,5 @@
 import { LayoutGrid, Rows3, Search } from 'lucide-react'
-import { CORE_VALUES, HEALTH, JOURNEYS, PMS, TIME_VIEWS, avatarViewUrl } from '../data/constants'
+import { CORE_VALUES, HEALTH, JOURNEYS, PMS, TIME_VIEWS } from '../data/constants'
 import MultiSelect from './MultiSelect'
 
 export default function Controls({
@@ -13,7 +13,6 @@ export default function Controls({
   onCoreValueFilterChange,
   healthFilter,
   onHealthFilterChange,
-  avatarPaths,
   search,
   onSearchChange,
   groupByJourney,
@@ -48,7 +47,6 @@ export default function Controls({
           options={PMS}
           selected={pmFilter}
           onChange={onPmFilterChange}
-          getAvatar={(name) => avatarViewUrl(avatarPaths[name])}
         />
         <MultiSelect
           label="Journey"

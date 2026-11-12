@@ -16,7 +16,6 @@ import { app } from './firebase'
 export const db = initializeFirestore(app, { ignoreUndefinedProperties: true })
 
 const initiativesCol = collection(db, 'initiatives')
-const pmAvatarsCol = collection(db, 'pmAvatars')
 
 // If Firestore isn't reachable (database not created yet, rules deny access,
 // offline), the SDK can wait a long time before failing. Give up after a few
@@ -94,16 +93,4 @@ export async function updateInitiative(id, patch) {
     updatedAt: serverTimestamp(),
   })
   return { id, ...patch }
-}
-
-export async function fetchPmAvatars() {
-  const snapshot = await withTimeout(getDocs(pmAvatarsCol))
-  const map = {}
-  for (const d of snapshot.docs) map[d.id] = d.data().pathname
-  return map
-}
-
-export async function savePmAvatar(pmName, pathname) {
-  await setDoc(doc(pmAvatarsCol, pmName), { pathname, updatedAt: serverTimestamp() })
-  return { pmName, pathname }
 }

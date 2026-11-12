@@ -4,13 +4,10 @@ import Board from './components/Board'
 import Controls from './components/Controls'
 import Header from './components/Header'
 import InitiativeModal from './components/InitiativeModal'
-import PmAvatarsPanel from './components/PmAvatarsPanel'
 import { JOURNEYS, firstMonthOfBucket } from './data/constants'
 import {
   createInitiative,
   fetchInitiatives,
-  fetchPmAvatars,
-  savePmAvatar,
   updateInitiative,
 } from './lib/api'
 import { initialInitiatives } from './data/mockInitiatives'
@@ -20,7 +17,6 @@ export default function App() {
   // is loading, or if it's unreachable (e.g. Firestore rules deny access or
   // the network is down — see dbConnected below).
   const [initiatives, setInitiatives] = useState(initialInitiatives)
-  const [avatarPaths, setAvatarPaths] = useState({})
   // null = still checking, true = persisting to the database, false = local-only
   const [dbConnected, setDbConnected] = useState(null)
   const [view, setView] = useState('Quarter')
@@ -34,7 +30,6 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingInitiative, setEditingInitiative] = useState(null)
   const [archivedPanelOpen, setArchivedPanelOpen] = useState(false)
-  const [avatarsPanelOpen, setAvatarsPanelOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
@@ -42,11 +37,10 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([fetchInitiatives(), fetchPmAvatars()])
-      .then(([loadedInitiatives, loadedAvatars]) => {
+    fetchInitiatives()
+      .then((loadedInitiatives) => {
         if (cancelled) return
         setInitiatives(loadedInitiatives)
-        setAvatarPaths(loadedAvatars)
         setDbConnected(true)
       })
       .catch((err) => {
@@ -94,8 +88,7 @@ export default function App() {
   // Every mutation below updates local state immediately (so the board never
   // blocks on the network), then persists in the background. Failures are
   // logged and flip the `dbConnected` indicator, but never roll back the
-  // local change or interrupt the user — same graceful-degradation approach
-  // as the PM avatar uploads.
+  // local change or interrupt the user.
   function persist(promise) {
     promise
       .then(() => setDbConnected(true))
@@ -128,11 +121,6 @@ export default function App() {
     persist(updateInitiative(id, { archived: false }))
   }
 
-  function handleAvatarChange(pmName, pathname) {
-    setAvatarPaths((prev) => ({ ...prev, [pmName]: pathname }))
-    persist(savePmAvatar(pmName, pathname))
-  }
-
   // Hiding a journey row is the same as deselecting it in the Journey filter
   // (starting from "all journeys" when no filter is set yet).
   function handleHideJourney(name) {
@@ -157,7 +145,6 @@ export default function App() {
         onNewInitiative={openNewModal}
         archivedCount={archivedInitiatives.length}
         onOpenArchive={() => setArchivedPanelOpen(true)}
-        onOpenAvatars={() => setAvatarsPanelOpen(true)}
         dbConnected={dbConnected}
       />
 
@@ -172,7 +159,6 @@ export default function App() {
         onCoreValueFilterChange={setCoreValueFilter}
         healthFilter={healthFilter}
         onHealthFilterChange={setHealthFilter}
-        avatarPaths={avatarPaths}
         search={search}
         onSearchChange={setSearch}
         groupByJourney={groupByJourney}
@@ -190,7 +176,6 @@ export default function App() {
           onHideJourney={handleHideJourney}
           onCardClick={openEditModal}
           onMove={handleMove}
-          avatarPaths={avatarPaths}
         />
       </main>
 
@@ -213,13 +198,6 @@ export default function App() {
         />
       )}
 
-      {avatarsPanelOpen && (
-        <PmAvatarsPanel
-          avatarPaths={avatarPaths}
-          onAvatarChange={handleAvatarChange}
-          onClose={() => setAvatarsPanelOpen(false)}
-        />
-      )}
     </div>
   )
 }

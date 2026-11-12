@@ -1,11 +1,11 @@
 import { get } from '@vercel/blob'
 
-export const config = { runtime: 'edge' }
+// Node.js runtime (the default) — @vercel/blob can't run on the Edge runtime.
 
 // ⚠️ Authenticate the request before serving the blob — this app has no
 // auth system yet, so any pathname passed here is currently readable by
 // anyone who knows (or guesses) it.
-export default async function handler(request) {
+export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const pathname = searchParams.get('pathname')
 
@@ -13,7 +13,12 @@ export default async function handler(request) {
     return Response.json({ error: 'Missing pathname' }, { status: 400 })
   }
 
-  const result = await get(pathname, { access: 'private' })
+  let result
+  try {
+    result = await get(pathname, { access: 'private' })
+  } catch (err) {
+    return Response.json({ error: err.message || 'Could not load avatar' }, { status: 500 })
+  }
   if (result?.statusCode !== 200) {
     return new Response('Not found', { status: 404 })
   }

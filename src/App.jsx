@@ -5,7 +5,7 @@ import Controls from './components/Controls'
 import Header from './components/Header'
 import InitiativeModal from './components/InitiativeModal'
 import PmAvatarsPanel from './components/PmAvatarsPanel'
-import { firstMonthOfBucket } from './data/constants'
+import { JOURNEYS, firstMonthOfBucket } from './data/constants'
 import {
   createInitiative,
   fetchInitiatives,
@@ -133,6 +133,15 @@ export default function App() {
     persist(savePmAvatar(pmName, pathname))
   }
 
+  // Hiding a journey row is the same as deselecting it in the Journey filter
+  // (starting from "all journeys" when no filter is set yet).
+  function handleHideJourney(name) {
+    setJourneyFilter((prev) => {
+      const current = prev.length ? prev : JOURNEYS.map((j) => j.name)
+      return current.filter((j) => j !== name)
+    })
+  }
+
   function handleMove(id, bucket, journey) {
     const startMonth = firstMonthOfBucket(bucket, view)
     const patch = { startMonth, ...(journey ? { journey } : {}) }
@@ -177,6 +186,8 @@ export default function App() {
           initiatives={filtered}
           view={view}
           groupByJourney={groupByJourney}
+          journeyFilter={journeyFilter}
+          onHideJourney={handleHideJourney}
           onCardClick={openEditModal}
           onMove={handleMove}
           avatarPaths={avatarPaths}

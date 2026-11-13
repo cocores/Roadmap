@@ -3,6 +3,23 @@ export const MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ]
 
+// Initiatives created before the Year field existed have no `year`; they
+// belong to the roadmap year they were planned in.
+export const DEFAULT_YEAR = 2026
+
+export function initiativeYear(initiative) {
+  return initiative.year ?? DEFAULT_YEAR
+}
+
+// Years offered in the editor: a couple back and several ahead of today,
+// plus any year already in use so existing values always show.
+export function yearOptions(...extraYears) {
+  const current = new Date().getFullYear()
+  const years = new Set(extraYears.filter((y) => Number.isInteger(y)))
+  for (let y = current - 2; y <= current + 5; y++) years.add(y)
+  return [...years].sort((a, b) => a - b)
+}
+
 export const TIME_VIEWS = {
   Month: { label: 'Month', buckets: MONTHS },
   Quarter: { label: 'Quarter', buckets: ['Q1', 'Q2', 'Q3', 'Q4'] },

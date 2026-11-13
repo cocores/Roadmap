@@ -4,7 +4,7 @@ import Board from './components/Board'
 import Controls from './components/Controls'
 import Header from './components/Header'
 import InitiativeModal from './components/InitiativeModal'
-import { JOURNEYS, firstMonthOfBucket } from './data/constants'
+import { JOURNEYS, firstMonthOfBucket, initiativeYear } from './data/constants'
 import {
   createInitiative,
   fetchInitiatives,
@@ -20,6 +20,7 @@ export default function App() {
   // null = still checking, true = persisting to the database, false = local-only
   const [dbConnected, setDbConnected] = useState(null)
   const [view, setView] = useState('Quarter')
+  const [year, setYear] = useState(() => new Date().getFullYear())
   const [pmFilter, setPmFilter] = useState([])
   const [journeyFilter, setJourneyFilter] = useState([])
   const [coreValueFilter, setCoreValueFilter] = useState([])
@@ -59,6 +60,7 @@ export default function App() {
     const q = search.trim().toLowerCase()
     return initiatives.filter((i) => {
       if (i.archived) return false
+      if (initiativeYear(i) !== year) return false
       if (pmFilter.length && !pmFilter.includes(i.pm)) return false
       if (journeyFilter.length && !journeyFilter.includes(i.journey)) return false
       if (coreValueFilter.length && !coreValueFilter.includes(i.coreValue)) return false
@@ -68,7 +70,12 @@ export default function App() {
       }
       return true
     })
-  }, [initiatives, pmFilter, journeyFilter, coreValueFilter, healthFilter, search])
+  }, [initiatives, year, pmFilter, journeyFilter, coreValueFilter, healthFilter, search])
+
+  const yearTotal = useMemo(
+    () => initiatives.filter((i) => !i.archived && initiativeYear(i) === year).length,
+    [initiatives, year]
+  )
 
   function openNewModal() {
     setEditingInitiative(null)
@@ -151,6 +158,8 @@ export default function App() {
       <Controls
         view={view}
         onViewChange={setView}
+        year={year}
+        onYearChange={setYear}
         pmFilter={pmFilter}
         onPmFilterChange={setPmFilter}
         journeyFilter={journeyFilter}
@@ -164,7 +173,7 @@ export default function App() {
         groupByJourney={groupByJourney}
         onToggleGroup={() => setGroupByJourney((g) => !g)}
         visibleCount={filtered.length}
-        totalCount={initiatives.length - archivedInitiatives.length}
+        totalCount={yearTotal}
       />
 
       <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-5">
@@ -183,6 +192,7 @@ export default function App() {
         <InitiativeModal
           key={editingInitiative ? editingInitiative.id : 'new'}
           view={view}
+          defaultYear={year}
           initiative={editingInitiative}
           onClose={closeModal}
           onSave={handleSave}

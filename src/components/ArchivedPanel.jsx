@@ -1,5 +1,5 @@
 import { ArchiveRestore, X } from 'lucide-react'
-import { COLOR_CLASSES, journeyColor, pmColor } from '../data/constants'
+import { COLOR_CLASSES, journeyColor, pmColor, initiativeYear } from '../data/constants'
 
 export default function ArchivedPanel({ initiatives, onClose, onRestore }) {
   return (
@@ -44,6 +44,7 @@ export default function ArchivedPanel({ initiatives, onClose, onRestore }) {
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${journeyC.badge}`}>
                         {i.journey}
                       </span>
+                      <span className="text-[11px] text-slate-500">{initiativeYear(i)}</span>
                     </div>
                   </div>
                   <button

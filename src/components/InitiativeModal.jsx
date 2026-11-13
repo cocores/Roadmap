@@ -9,6 +9,8 @@ import {
   TIME_VIEWS,
   bucketForMonth,
   firstMonthOfBucket,
+  initiativeYear,
+  yearOptions,
 } from '../data/constants'
 import ConfirmDialog from './ConfirmDialog'
 
@@ -23,7 +25,7 @@ const LAMPS = [
   { name: 'Green', lit: 'bg-green-500 shadow-[0_0_10px_2px] shadow-green-500/70', off: 'bg-green-950 ring-1 ring-inset ring-green-900/60' },
 ]
 
-function buildForm(view, initiative) {
+function buildForm(view, initiative, defaultYear) {
   if (!initiative) {
     return {
       title: '',
@@ -37,6 +39,7 @@ function buildForm(view, initiative) {
       impact: '',
       tags: '',
       bucket: TIME_VIEWS[view].buckets[0],
+      year: defaultYear,
       trackerLink: '',
       confluenceLink: '',
     }
@@ -53,6 +56,7 @@ function buildForm(view, initiative) {
     impact: initiative.impact,
     tags: initiative.tags.join(', '),
     bucket: bucketForMonth(initiative.startMonth, view),
+    year: initiativeYear(initiative),
     trackerLink: initiative.trackerLink || '',
     confluenceLink: initiative.confluenceLink || '',
   }
@@ -60,8 +64,8 @@ function buildForm(view, initiative) {
 
 // Mounted only while open (parent keys it per initiative), so state can
 // initialize straight from props with no reset effect needed.
-export default function InitiativeModal({ view, initiative, onClose, onSave, onArchive }) {
-  const [form, setForm] = useState(() => buildForm(view, initiative))
+export default function InitiativeModal({ view, defaultYear, initiative, onClose, onSave, onArchive }) {
+  const [form, setForm] = useState(() => buildForm(view, initiative, defaultYear))
   const [confirmArchive, setConfirmArchive] = useState(false)
 
   function update(field, value) {
@@ -87,6 +91,7 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onA
         .map((t) => t.trim())
         .filter(Boolean),
       startMonth: firstMonthOfBucket(form.bucket, view),
+      year: Number(form.year),
       trackerLink: form.trackerLink.trim(),
       confluenceLink: form.confluenceLink.trim(),
     })
@@ -167,6 +172,15 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onA
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
+            <Field label="Year">
+              <select value={form.year} onChange={(e) => update('year', Number(e.target.value))} className={inputClass}>
+                {yearOptions(form.year, defaultYear).map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </Field>
             <Field label={`Time Bucket (${TIME_VIEWS[view].label})`}>
               <select value={form.bucket} onChange={(e) => update('bucket', e.target.value)} className={inputClass}>
                 {TIME_VIEWS[view].buckets.map((b) => (
@@ -176,6 +190,9 @@ export default function InitiativeModal({ view, initiative, onClose, onSave, onA
                 ))}
               </select>
             </Field>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
               <select value={form.status} onChange={(e) => update('status', e.target.value)} className={inputClass}>
                 {STATUSES.map((s) => (

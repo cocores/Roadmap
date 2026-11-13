@@ -15,8 +15,8 @@ export default function Header({
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-600/20">
             <Map size={18} />
           </div>
-          <div>
-            <h1 className="whitespace-nowrap text-lg font-semibold tracking-tight text-slate-100 light:text-slate-900">
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold tracking-tight text-slate-100 light:text-slate-900">
               PM Roadmap
             </h1>
             <p className="hidden text-xs text-slate-500 sm:block light:text-slate-500">

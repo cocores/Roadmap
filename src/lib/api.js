@@ -8,6 +8,7 @@ import {
   updateDoc,
   writeBatch,
 } from 'firebase/firestore'
+import { DEFAULT_YEAR } from '../data/constants'
 import { initialInitiatives } from '../data/mockInitiatives'
 import { app } from './firebase'
 
@@ -44,6 +45,7 @@ function docToInitiative(snapshot) {
     impact: d.impact ?? '',
     tags: d.tags ?? [],
     startMonth: d.startMonth,
+    year: d.year ?? DEFAULT_YEAR,
     trackerLink: d.trackerLink ?? null,
     confluenceLink: d.confluenceLink ?? null,
     archived: d.archived ?? false,
@@ -75,7 +77,7 @@ export async function fetchInitiatives() {
   if (snapshot.empty) return seedInitiatives()
   return snapshot.docs
     .map(docToInitiative)
-    .sort((a, b) => a.startMonth - b.startMonth || a.title.localeCompare(b.title))
+    .sort((a, b) => a.year - b.year || a.startMonth - b.startMonth || a.title.localeCompare(b.title))
 }
 
 export async function createInitiative(initiative) {

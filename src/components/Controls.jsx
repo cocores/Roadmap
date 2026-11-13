@@ -1,10 +1,12 @@
-import { LayoutGrid, Rows3, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutGrid, Rows3, Search } from 'lucide-react'
 import { CORE_VALUES, HEALTH, JOURNEYS, PMS, TIME_VIEWS } from '../data/constants'
 import MultiSelect from './MultiSelect'
 
 export default function Controls({
   view,
   onViewChange,
+  year,
+  onYearChange,
   pmFilter,
   onPmFilterChange,
   journeyFilter,
@@ -25,6 +27,28 @@ export default function Controls({
   return (
     <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-6 sm:pt-5">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex items-center rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
+          <button
+            type="button"
+            onClick={() => onYearChange(year - 1)}
+            aria-label="Previous year"
+            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-700/60 hover:text-slate-100 light:text-slate-500 light:hover:bg-slate-100 light:hover:text-slate-800"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span className="min-w-[3.25rem] text-center text-sm font-semibold tabular-nums text-slate-100 light:text-slate-800">
+            {year}
+          </span>
+          <button
+            type="button"
+            onClick={() => onYearChange(year + 1)}
+            aria-label="Next year"
+            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-700/60 hover:text-slate-100 light:text-slate-500 light:hover:bg-slate-100 light:hover:text-slate-800"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
         <div className="flex rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
           {Object.keys(TIME_VIEWS).map((key) => (
             <button
@@ -85,7 +109,7 @@ export default function Controls({
 
       <p className="mt-3 text-xs text-slate-500 light:text-slate-500">
         Showing <span className="font-semibold text-slate-300 light:text-slate-700">{visibleCount}</span> of{' '}
-        {totalCount} initiatives
+        {totalCount} initiatives in <span className="font-semibold text-slate-300 light:text-slate-700">{year}</span>
         {singlePm ? (
           <>
             {' '}

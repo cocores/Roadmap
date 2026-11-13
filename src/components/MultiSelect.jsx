@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function MultiSelect({ label, options, selected, onChange }) {
   const [open, setOpen] = useState(false)
+  const [alignRight, setAlignRight] = useState(false)
   const ref = useRef(null)
 
   useEffect(() => {
@@ -25,7 +26,13 @@ export default function MultiSelect({ label, options, selected, onChange }) {
     <div className="relative" ref={ref}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          // The menu is 224px wide; flip it to open leftward when the button
+          // sits too close to the right edge (common on phones).
+          const rect = ref.current?.getBoundingClientRect()
+          setAlignRight(rect ? rect.left + 224 > window.innerWidth - 8 : false)
+          setOpen((o) => !o)
+        }}
         className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-200 hover:border-slate-600 hover:bg-slate-800 light:border-slate-300 light:bg-white light:text-slate-700 light:hover:border-slate-400 light:hover:bg-slate-50"
       >
         <span>{label}</span>
@@ -38,7 +45,7 @@ export default function MultiSelect({ label, options, selected, onChange }) {
       </button>
 
       {open && (
-        <div className="absolute left-0 z-30 mt-2 w-56 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl shadow-black/40 light:border-slate-200 light:bg-white">
+        <div className={`absolute z-30 mt-2 w-56 ${alignRight ? 'right-0' : 'left-0'} overflow-hidden rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl shadow-black/40 light:border-slate-200 light:bg-white`}>
           {selected.length > 0 && (
             <button
               type="button"

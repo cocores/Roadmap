@@ -3,8 +3,8 @@ import { COLOR_CLASSES, journeyColor, pmColor } from '../data/constants'
 
 export default function ArchivedPanel({ initiatives, onClose, onRestore }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl light:border-slate-200 light:bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-4">
+      <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl sm:p-6 light:border-slate-200 light:bg-white">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-100 light:text-slate-900">
             Archived Initiatives

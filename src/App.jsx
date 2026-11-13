@@ -167,7 +167,7 @@ export default function App() {
         totalCount={initiatives.length - archivedInitiatives.length}
       />
 
-      <main className="mx-auto max-w-[1600px] px-6 py-5">
+      <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-5">
         <Board
           initiatives={filtered}
           view={view}

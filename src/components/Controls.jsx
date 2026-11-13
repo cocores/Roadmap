@@ -23,8 +23,8 @@ export default function Controls({
   const singlePm = pmFilter.length === 1 ? pmFilter[0] : null
 
   return (
-    <div className="mx-auto max-w-[1600px] px-6 pt-5">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-6 sm:pt-5">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <div className="flex rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
           {Object.keys(TIME_VIEWS).map((key) => (
             <button
@@ -62,7 +62,7 @@ export default function Controls({
         />
         <MultiSelect label="Health" options={HEALTH} selected={healthFilter} onChange={onHealthFilterChange} />
 
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative basis-full sm:min-w-[200px] sm:flex-1 sm:basis-auto">
           <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"

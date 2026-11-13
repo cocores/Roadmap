@@ -26,7 +26,67 @@ export default function Board({
 
   if (groupByJourney) {
     return (
-      <div className="overflow-x-auto pb-4">
+      <>
+        {/* Phones: one stacked section per journey, cards listed under their time bucket. */}
+        <div className="space-y-5 md:hidden">
+          {visibleJourneys.map((journey) => {
+            const jc = COLOR_CLASSES[journeyColor(journey.name)]
+            const journeyCards = initiatives.filter((i) => i.journey === journey.name)
+            return (
+              <section key={journey.name}>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${jc.solid}`} />
+                  <h3 className="flex-1 text-sm font-semibold text-slate-200 light:text-slate-700">
+                    {journey.name}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">{journeyCards.length}</span>
+                  </h3>
+                  {onHideJourney && visibleJourneys.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => onHideJourney(journey.name)}
+                      aria-label={`Hide ${journey.name}`}
+                      className="rounded-full p-2 text-slate-500 hover:bg-slate-800 hover:text-slate-200 light:hover:bg-slate-200 light:hover:text-slate-700"
+                    >
+                      <EyeOff size={15} />
+                    </button>
+                  )}
+                </div>
+                {journeyCards.length === 0 ? (
+                  <p className="rounded-lg border border-dashed border-slate-800/80 px-3 py-3 text-xs text-slate-500 light:border-slate-200">
+                    No initiatives
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {buckets.map((bucket) => {
+                      const cards = journeyCards.filter((i) => bucketForMonth(i.startMonth, view) === bucket)
+                      if (cards.length === 0) return null
+                      return (
+                        <div key={bucket}>
+                          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            {bucket}
+                          </div>
+                          <div className="space-y-2">
+                            {cards.map((card) => (
+                              <InitiativeCard
+                                key={card.id}
+                                initiative={card}
+                                onClick={onCardClick}
+                                onDragStart={handleDragStart}
+                                showJourney={false}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </section>
+            )
+          })}
+        </div>
+
+      <div className="hidden overflow-x-auto pb-4 md:block">
         <div
           className="grid min-w-max gap-3"
           style={{ gridTemplateColumns: `160px repeat(${buckets.length}, minmax(220px, 1fr))` }}
@@ -89,19 +149,22 @@ export default function Board({
           })}
         </div>
       </div>
+      </>
     )
   }
 
   return (
-    <div className="overflow-x-auto pb-4">
+    <div className="-mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:snap-none sm:scroll-px-0 sm:px-0">
       <div
-        className="grid min-w-max gap-4"
-        style={{ gridTemplateColumns: `repeat(${buckets.length}, minmax(260px, 1fr))` }}
+        // Phones: fixed 85vw columns that snap one at a time; wider screens keep
+        // the flexible 260px+ columns.
+        className="grid min-w-max gap-3 [--col:85vw] sm:gap-4 sm:[--col:minmax(260px,1fr)]"
+        style={{ gridTemplateColumns: `repeat(${buckets.length}, var(--col))` }}
       >
         {buckets.map((bucket) => {
           const cards = initiatives.filter((i) => bucketForMonth(i.startMonth, view) === bucket)
           return (
-            <div key={bucket} className="flex flex-col">
+            <div key={bucket} className="flex snap-start flex-col">
               <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-800/60 px-3 py-2 light:bg-slate-200/70">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-300 light:text-slate-600">
                   {bucket}

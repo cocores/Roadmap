@@ -7,6 +7,31 @@ const HEALTH_BORDER = {
   Red: 'border-l-red-500',
 }
 
+const LIGHTS = [
+  { name: 'Red', on: 'bg-red-500 shadow-[0_0_6px_1px] shadow-red-500/70' },
+  { name: 'Yellow', on: 'bg-yellow-400 shadow-[0_0_6px_1px] shadow-yellow-400/70' },
+  { name: 'Green', on: 'bg-green-500 shadow-[0_0_6px_1px] shadow-green-500/70' },
+]
+
+// A small traffic light: the lamp matching the initiative's health is lit,
+// the others are dimmed. All three are dim when no health is set.
+function StopLight({ health }) {
+  return (
+    <div
+      role="img"
+      aria-label={health ? `Health: ${health}` : 'Health: not set'}
+      className="flex shrink-0 flex-col items-center gap-[3px] rounded-md bg-slate-950 px-[3px] py-1 ring-1 ring-slate-700 light:bg-slate-800 light:ring-slate-600"
+    >
+      {LIGHTS.map((light) => (
+        <span
+          key={light.name}
+          className={`h-2 w-2 rounded-full ${health === light.name ? light.on : 'bg-slate-700 light:bg-slate-600'}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function InitiativeCard({ initiative, onClick, onDragStart, showJourney = true }) {
   const pmC = COLOR_CLASSES[pmColor(initiative.pm)]
   const journeyC = COLOR_CLASSES[journeyColor(initiative.journey)]
@@ -27,11 +52,14 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
         <h4 className="text-sm font-semibold leading-snug text-slate-100 light:text-slate-900">
           {initiative.title}
         </h4>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusC.badge}`}
-        >
-          {initiative.status}
-        </span>
+        <div className="flex shrink-0 items-start gap-2">
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusC.badge}`}
+          >
+            {initiative.status}
+          </span>
+          <StopLight health={initiative.health} />
+        </div>
       </div>
 
       <p className="mt-1.5 line-clamp-2 text-xs text-slate-400 light:text-slate-500">

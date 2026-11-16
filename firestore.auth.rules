@@ -9,9 +9,12 @@ rules_version = '2';
 // the app cannot change it.
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Microsoft sign-in only, with a company email. Firebase doesn't mark
+    // Microsoft emails as "verified", so the real gate is the Entra app
+    // registration being single-tenant (only bhphoto.com accounts can sign in).
     function signedIn() {
       return request.auth != null
-        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'microsoft.com'
         && request.auth.token.email.lower().matches('.*@bhphoto\\.com$');
     }
 

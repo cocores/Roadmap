@@ -1,36 +1,47 @@
-import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
+import { OAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { db } from './api'
 import { app } from './firebase'
 
 // ─── Access control ────────────────────────────────────────────────────────
-// Set this to your company's email domain (e.g. 'example.com') to require
-// Google sign-in. Leave it empty to keep the app open to anyone with the link.
+// Sign-in uses Microsoft (Outlook / Microsoft 365 work accounts). Set this to
+// the company email domain to require sign-in; leave it empty to keep the
+// app open to anyone with the link.
 //
 // When it's set:
-//   • only Google accounts at this domain can sign in and view the roadmap;
+//   • only Microsoft work accounts with an email at this domain can sign in
+//     and view the roadmap;
 //   • only emails listed in the Firestore document settings/access, field
 //     `editors` (an array of emails), can make changes — everyone else is
 //     read-only;
-//   • publish firestore.auth.rules (with the same domain) in the Firebase
-//     console, and enable Google under Authentication → Sign-in method.
+//   • enable Microsoft under Firebase Authentication → Sign-in method (it
+//     needs an app registration in Microsoft Entra ID — see README), and
+//     publish firestore.auth.rules in the Firebase console.
 export const ALLOWED_DOMAIN = 'bhphoto.com'
 
 export const authEnabled = ALLOWED_DOMAIN !== ''
 
 const auth = getAuth(app)
 
+// Microsoft accounts don't always fill in user.email; fall back to the
+// address on the Microsoft profile.
+function userEmail(u) {
+  return u?.email || u?.providerData?.find((p) => p.email)?.email || null
+}
+
 function emailAllowed(email) {
   return !!email && email.toLowerCase().endsWith(`@${ALLOWED_DOMAIN.toLowerCase()}`)
 }
 
 export async function signIn() {
-  const provider = new GoogleAuthProvider()
-  // Pre-selects accounts on the company domain in Google's account picker.
-  provider.setCustomParameters({ hd: ALLOWED_DOMAIN, prompt: 'select_account' })
+  const provider = new OAuthProvider('microsoft.com')
+  // Send people to the company's Microsoft sign-in page (the domain name
+  // identifies the Microsoft 365 tenant) and always show the account picker.
+  provider.setCustomParameters({ tenant: ALLOWED_DOMAIN, prompt: 'select_account' })
+  provider.addScope('email')
   const result = await signInWithPopup(auth, provider)
-  if (!emailAllowed(result.user.email)) {
+  if (!emailAllowed(userEmail(result.user))) {
     await signOut(auth)
     throw new Error(`Please sign in with your @${ALLOWED_DOMAIN} account.`)
   }
@@ -48,7 +59,7 @@ export function useAccess() {
 
   useEffect(() => {
     if (!authEnabled) return undefined
-    return onAuthStateChanged(auth, (u) => setUser(u && emailAllowed(u.email) ? u : null))
+    return onAuthStateChanged(auth, (u) => setUser(u && emailAllowed(userEmail(u)) ? u : null))
   }, [])
 
   useEffect(() => {
@@ -65,7 +76,7 @@ export function useAccess() {
   if (!user) return { status: 'signedOut', user: null, canEdit: false }
   return {
     status: 'signedIn',
-    user: { email: user.email, name: user.displayName, photo: user.photoURL },
-    canEdit: editors.includes(user.email.toLowerCase()),
+    user: { email: userEmail(user), name: user.displayName, photo: user.photoURL },
+    canEdit: editors.includes(userEmail(user).toLowerCase()),
   }
 }

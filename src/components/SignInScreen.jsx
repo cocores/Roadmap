@@ -29,14 +29,14 @@ export default function SignInScreen({ loading }) {
           <p className="mt-2 text-sm text-slate-400">Checking your sign-in…</p>
         ) : (
           <>
-            <p className="mt-2 text-sm text-slate-400">Sign in with your @{ALLOWED_DOMAIN} Google account.</p>
+            <p className="mt-2 text-sm text-slate-400">Sign in with your @{ALLOWED_DOMAIN} Microsoft (Outlook) work account.</p>
             <button
               type="button"
               onClick={handleSignIn}
               disabled={busy}
               className="mt-6 w-full rounded-full bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-60"
             >
-              {busy ? 'Signing in…' : 'Sign in with Google'}
+              {busy ? 'Signing in…' : 'Sign in with Microsoft'}
             </button>
             {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
           </>

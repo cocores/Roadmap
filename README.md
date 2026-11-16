@@ -11,7 +11,7 @@ A collaborative product manager roadmap board built with React, Tailwind CSS, an
 - **Live sync** — changes from other people appear immediately.
 - **Shareable, remembered settings** — year, view, page and filters are kept in the URL (so links reproduce exactly what you see) and remembered per browser.
 - **CSV import/export** — from the "⋯" menu in the header.
-- **Optional Google sign-in** — restrict to your company domain, with an editor list; everyone else is read-only (see below).
+- **Microsoft sign-in** — restricted to the company domain, with an editor list; everyone else is read-only (see below).
 - **Mobile friendly**, dark/light themes.
 
 ## Development
@@ -32,13 +32,20 @@ Data lives in the Firebase project `roadmap-919ae` (config in `src/lib/firebase.
 
 Collections: `initiatives/{id}`, `changes/{id}` (change history), `snapshots/{id}` (saved roadmaps for Compare), and — with sign-in on — `settings/access`.
 
-## Turning on sign-in
+## Turning on sign-in (Microsoft / Outlook accounts)
 
-1. Firebase console → **Authentication** → **Sign-in method** → enable **Google**. Under **Settings → Authorized domains**, add the domain the app is deployed on (e.g. your Vercel URL).
-2. In `src/lib/auth.js`, set `ALLOWED_DOMAIN` to your company email domain (e.g. `example.com`).
-3. In Firestore, create the document `settings/access` with a field `editors` (type *array*) listing the emails allowed to edit, in lowercase.
-4. In `firestore.auth.rules`, replace `example\.com` with your domain, then paste it into **Firestore → Rules** and **Publish**.
-5. Deploy. Everyone at the domain can sign in and view; only listed editors can change things.
+Sign-in is set to the `bhphoto.com` domain in `src/lib/auth.js` (`ALLOWED_DOMAIN`) and uses Microsoft work accounts.
+
+1. **Register an app in Microsoft Entra ID** (Azure portal → Microsoft Entra ID → App registrations → New registration; usually needs IT):
+   - Supported account types: **Accounts in this organizational directory only** (single tenant). This is what keeps non-company accounts out.
+   - Redirect URI (Web): `https://roadmap-919ae.firebaseapp.com/__/auth/handler`
+   - After creating it, copy the **Application (client) ID**, then under **Certificates & secrets** create a **client secret** and copy its value.
+2. **Firebase console → Authentication → Sign-in method → Add new provider → Microsoft**: paste the client ID and secret, enable, save.
+3. **Authentication → Settings → Authorized domains**: add the domain the app is served from (your Vercel URL / custom domain).
+4. **Firestore → Data**: create collection `settings`, document `access`, with an array field `editors` listing editor emails in lowercase.
+5. **Firestore → Rules**: paste `firestore.auth.rules` and **Publish**.
+
+Everyone at the domain can sign in and view; only listed editors can change things.
 
 ## Build
 

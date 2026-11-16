@@ -16,5 +16,13 @@ service cloud.firestore {
     match /snapshots/{id} {
       allow read, create: if true;
     }
+    // Stakeholder page: executive summary per year.
+    match /summaries/{year} {
+      allow read, write: if true;
+    }
+    // Stakeholder page: saved audience views.
+    match /presets/{id} {
+      allow read, create, delete: if true;
+    }
   }
 }

@@ -4,7 +4,7 @@ import { CORE_VALUES, HEALTH, JOURNEYS, MONTHS, PMS, STATUSES } from '../data/co
 const COLUMNS = [
   'id', 'title', 'description', 'pm', 'journey', 'coreValue', 'status', 'health',
   'progress', 'impact', 'tags', 'year', 'startMonth', 'endMonth', 'priority',
-  'blockedBy', 'trackerLink', 'confluenceLink',
+  'blockedBy', 'statusNote', 'milestones', 'trackerLink', 'confluenceLink',
 ]
 
 function escapeCell(value) {
@@ -17,6 +17,7 @@ export function initiativesToCsv(initiatives) {
     COLUMNS.map((col) => {
       if (col === 'tags') return i.tags.join('; ')
       if (col === 'blockedBy') return (i.blockedBy ?? []).join('; ')
+      if (col === 'milestones') return (i.milestones ?? []).map((m) => `${m.name} @ ${m.date}`).join('; ')
       if (col === 'startMonth') return MONTHS[i.startMonth]
       if (col === 'endMonth') return i.endMonth == null ? '' : MONTHS[i.endMonth]
       return i[col]
@@ -114,12 +115,21 @@ export function csvToInitiatives(text, existing) {
       if (name) data[col] = name
       else problems.push(`unknown ${col} "${v}"`)
     }
-    for (const col of ['description', 'impact', 'trackerLink', 'confluenceLink']) {
+    for (const col of ['description', 'impact', 'statusNote', 'trackerLink', 'confluenceLink']) {
       const v = get(col)
       if (v != null) data[col] = v
     }
     const tags = get('tags')
     if (tags != null) data.tags = tags.split(/[;,]/).map((t) => t.trim()).filter(Boolean)
+    const milestones = get('milestones')
+    if (milestones != null) {
+      data.milestones = []
+      for (const part of milestones.split(';').map((m) => m.trim()).filter(Boolean)) {
+        const m = part.match(/^(.*?)\s*@\s*(\d{4}-\d{2}-\d{2})$/)
+        if (m) data.milestones.push({ name: m[1], date: m[2] })
+        else problems.push(`milestone "${part}" should look like "Beta @ 2026-03-15"`)
+      }
+    }
     const blockedBy = get('blockedBy')
     if (blockedBy != null) data.blockedBy = blockedBy.split(/[;,]/).map((t) => t.trim()).filter(Boolean)
 

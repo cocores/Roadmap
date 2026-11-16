@@ -16,16 +16,17 @@ import {
   sortByPriority,
 } from './data/constants'
 import { initialInitiatives } from './data/mockInitiatives'
-import { batchWrite, createInitiative, normalizeInitiative, subscribeInitiatives, updateInitiative } from './lib/api'
+import { batchWrite, createInitiative, getPreset, normalizeInitiative, subscribeInitiatives, updateInitiative } from './lib/api'
 import { useAccess } from './lib/auth'
 import { downloadCsv, initiativesToCsv } from './lib/csv'
-import { readInitialSettings, useSyncedSettings } from './lib/urlState'
+import { parseQuery, readInitialSettings, useSyncedSettings } from './lib/urlState'
 
 const DEFAULT_SETTINGS = {
   page: 'board',
   year: new Date().getFullYear(),
   view: 'Quarter',
   layout: 'timeline',
+  tl: 'journey',
   pm: [],
   journey: [],
   cv: [],
@@ -60,6 +61,29 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
   }, [theme])
+
+  // Replace every setting with a saved view's (filters, layout, year…).
+  function applyQuery(query) {
+    setSettings({ ...DEFAULT_SETTINGS, ...parseQuery(query), page: 'stakeholder' })
+  }
+
+  // Short links (?preset=<id>) load a saved view once access is settled.
+  const presetId = settings.preset
+  const canLoadPreset = access.status === 'open' || access.status === 'signedIn'
+  useEffect(() => {
+    if (!presetId || !canLoadPreset) return
+    getPreset(presetId)
+      .then((preset) => {
+        if (preset) applyQuery(preset.query)
+        else setSettings(({ preset: _drop, ...rest }) => rest)
+      })
+      .catch((err) => {
+        console.error('Could not load saved view:', err)
+        setSettings(({ preset: _drop, ...rest }) => rest)
+      })
+    // applyQuery only uses setSettings, which is stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetId, canLoadPreset])
 
   const canRead = access.status === 'open' || access.status === 'signedIn'
   useEffect(() => {
@@ -319,9 +343,11 @@ export default function App() {
             initiativesAllYears={filteredAllYears}
             byId={byId}
             year={settings.year}
-            layout={settings.layout}
-            onLayoutChange={set('layout')}
             settings={settings}
+            onSettingsChange={(key, value) => set(key)(value)}
+            onApplyQuery={applyQuery}
+            canEdit={canEdit}
+            user={user}
             onCardClick={openEditModal}
           />
         </>

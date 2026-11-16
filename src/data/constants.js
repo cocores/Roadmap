@@ -158,6 +158,8 @@ export const FIELD_LABELS = {
   endMonth: 'End',
   year: 'Year',
   priority: 'Priority',
+  statusNote: 'Latest update',
+  milestones: 'Milestones',
   blockedBy: 'Blocked by',
   trackerLink: 'Ticket link',
   confluenceLink: 'Confluence link',

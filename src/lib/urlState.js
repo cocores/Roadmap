@@ -24,15 +24,22 @@ function writeStorage(value) {
   }
 }
 
+// Parses a settings query string (from the URL or a saved preset).
+export function parseQuery(query) {
+  const params = new URLSearchParams(query)
+  const out = {}
+  for (const [key, value] of params) {
+    if (LIST_KEYS.includes(key)) out[key] = value ? value.split(',') : []
+    else if (key === 'year') out.year = Number(value)
+    else if (key === 'group') out.group = value !== '0'
+    else out[key] = value
+  }
+  return out
+}
+
 export function readInitialSettings(defaults) {
   const params = new URLSearchParams(window.location.search)
-  const fromUrl = {}
-  for (const [key, value] of params) {
-    if (LIST_KEYS.includes(key)) fromUrl[key] = value ? value.split(',') : []
-    else if (key === 'year') fromUrl.year = Number(value)
-    else if (key === 'group') fromUrl.group = value !== '0'
-    else fromUrl[key] = value
-  }
+  const fromUrl = parseQuery(window.location.search)
   // A shared link with any setting in it is used as-is (on top of defaults),
   // so recipients see exactly what the sender saw.
   const base = params.toString() ? {} : readStorage()
@@ -47,6 +54,7 @@ export function settingsToQuery(s) {
   params.set('year', String(s.year))
   params.set('view', s.view)
   if (s.layout) params.set('layout', s.layout)
+  if (s.tl && s.tl !== 'journey') params.set('tl', s.tl)
   for (const key of LIST_KEYS) if (s[key]?.length) params.set(key, s[key].join(','))
   if (s.q) params.set('q', s.q)
   if (!s.group) params.set('group', '0')

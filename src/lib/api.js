@@ -1,7 +1,9 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
+  getDoc,
   getDocs,
   initializeFirestore,
   onSnapshot,
@@ -24,12 +26,13 @@ export const db = initializeFirestore(app, { ignoreUndefinedProperties: true })
 const initiativesCol = collection(db, 'initiatives')
 const changesCol = collection(db, 'changes')
 const snapshotsCol = collection(db, 'snapshots')
+const presetsCol = collection(db, 'presets')
 
 // Fields tracked in change history (everything a person edits).
 const TRACKED_FIELDS = [
   'title', 'description', 'pm', 'journey', 'coreValue', 'status', 'health',
   'progress', 'impact', 'tags', 'startMonth', 'endMonth', 'year', 'priority',
-  'blockedBy', 'trackerLink', 'confluenceLink', 'archived',
+  'blockedBy', 'statusNote', 'milestones', 'trackerLink', 'confluenceLink', 'archived',
 ]
 
 export function normalizeInitiative(id, d) {
@@ -50,6 +53,8 @@ export function normalizeInitiative(id, d) {
     year: d.year ?? DEFAULT_YEAR,
     priority: d.priority ?? null,
     blockedBy: d.blockedBy ?? [],
+    statusNote: d.statusNote ?? '',
+    milestones: d.milestones ?? [],
     trackerLink: d.trackerLink ?? null,
     confluenceLink: d.confluenceLink ?? null,
     archived: d.archived ?? false,
@@ -214,4 +219,40 @@ export async function listSnapshots() {
       initiatives: (data.initiatives ?? []).map((i) => normalizeInitiative(i.id, i)),
     }
   })
+}
+
+// ─── Stakeholder page: executive summary (one per year) ────────────────────
+export function subscribeSummary(year, onData) {
+  return onSnapshot(
+    doc(db, 'summaries', String(year)),
+    (snap) => {
+      const d = snap.data()
+      onData(d ? { text: d.text ?? '', by: d.by ?? null, at: d.at?.toDate?.() ?? null } : { text: '', by: null, at: null })
+    },
+    () => onData(null)
+  )
+}
+
+export function saveSummary(year, text, user) {
+  return setDoc(doc(db, 'summaries', String(year)), { text, by: user ?? null, at: serverTimestamp() })
+}
+
+// ─── Audience presets: named, shareable stakeholder views ──────────────────
+export async function listPresets() {
+  const snapshot = await getDocs(query(presetsCol, orderBy('name')))
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+}
+
+export async function getPreset(id) {
+  const snap = await getDoc(doc(presetsCol, id))
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null
+}
+
+export async function savePreset(name, settingsQuery, user) {
+  const ref = await addDoc(presetsCol, { name, query: settingsQuery, by: user ?? null, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+export function deletePreset(id) {
+  return deleteDoc(doc(presetsCol, id))
 }

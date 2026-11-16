@@ -1,4 +1,4 @@
-import { History, Trash2, X } from 'lucide-react'
+import { Diamond, History, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   CORE_VALUES,
@@ -46,6 +46,8 @@ function buildForm(view, initiative, defaultYear) {
       year: defaultYear,
       endMonth: '',
       blockedBy: [],
+      statusNote: '',
+      milestones: [],
       trackerLink: '',
       confluenceLink: '',
     }
@@ -66,6 +68,8 @@ function buildForm(view, initiative, defaultYear) {
     year: initiativeYear(initiative),
     endMonth: initiative.endMonth ?? '',
     blockedBy: initiative.blockedBy ?? [],
+    statusNote: initiative.statusNote ?? '',
+    milestones: initiative.milestones ?? [],
     trackerLink: initiative.trackerLink || '',
     confluenceLink: initiative.confluenceLink || '',
   }
@@ -115,6 +119,11 @@ export default function InitiativeModal({
       // Blank = automatic (three months from the start).
       endMonth: form.endMonth === '' ? null : Math.max(startMonth, Number(form.endMonth)),
       blockedBy: form.blockedBy,
+      statusNote: form.statusNote.trim(),
+      milestones: form.milestones
+        .map((m) => ({ name: m.name.trim(), date: m.date }))
+        .filter((m) => m.name && m.date)
+        .sort((a, b) => a.date.localeCompare(b.date)),
       year: Number(form.year),
       trackerLink: form.trackerLink.trim(),
       confluenceLink: form.confluenceLink.trim(),
@@ -283,6 +292,18 @@ export default function InitiativeModal({
               <span className="text-sm font-medium text-slate-300 light:text-slate-700">{form.health}</span>
             </div>
           </div>
+
+          <Field label="Latest update (shown to stakeholders)">
+            <textarea
+              rows={2}
+              value={form.statusNote}
+              onChange={(e) => update('statusNote', e.target.value)}
+              className={inputClass}
+              placeholder="e.g. Vendor contract signed — build starts Jun 3"
+            />
+          </Field>
+
+          <MilestonesEditor value={form.milestones} onChange={(v) => update('milestones', v)} year={form.year} />
 
           <BlockedByPicker
             value={form.blockedBy}
@@ -497,5 +518,53 @@ function HistoryList({ initiativeId }) {
         ))}
       </div>
     </details>
+  )
+}
+
+function MilestonesEditor({ value, onChange, year }) {
+  const setAt = (idx, patch) => onChange(value.map((m, i) => (i === idx ? { ...m, ...patch } : m)))
+  return (
+    <div>
+      <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400 light:text-slate-500">
+        <Diamond size={12} /> Milestones (shown on the timeline)
+      </span>
+      <div className="space-y-2">
+        {value.map((m, idx) => (
+          <div key={idx} className="flex gap-2">
+            <input
+              value={m.name}
+              onChange={(e) => setAt(idx, { name: e.target.value })}
+              placeholder="e.g. Beta, GA"
+              aria-label="Milestone name"
+              className={`${inputClass} flex-1`}
+            />
+            <input
+              type="date"
+              value={m.date}
+              min={`${year}-01-01`}
+              max={`${year}-12-31`}
+              onChange={(e) => setAt(idx, { date: e.target.value })}
+              aria-label="Milestone date"
+              className={`${inputClass} w-40 shrink-0`}
+            />
+            <button
+              type="button"
+              onClick={() => onChange(value.filter((_, i) => i !== idx))}
+              aria-label="Remove milestone"
+              className="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-800 hover:text-red-400 light:hover:bg-slate-100"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => onChange([...value, { name: '', date: '' }])}
+          className="flex items-center gap-1.5 rounded-full border border-dashed border-slate-600 px-3 py-1.5 text-xs text-slate-400 hover:border-brand-500 hover:text-slate-200 light:border-slate-300 light:text-slate-500"
+        >
+          <Plus size={13} /> Add milestone
+        </button>
+      </div>
+    </div>
   )
 }

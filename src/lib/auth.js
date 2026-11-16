@@ -18,7 +18,9 @@ import { app } from './firebase'
 //   • enable Microsoft under Firebase Authentication → Sign-in method (it
 //     needs an app registration in Microsoft Entra ID — see README), and
 //     publish firestore.auth.rules in the Firebase console.
-export const ALLOWED_DOMAIN = 'bhphoto.com'
+// Sign-in is OFF until the Microsoft setup in the README is done; then set
+// this to 'bhphoto.com' to turn it on.
+export const ALLOWED_DOMAIN = ''
 
 export const authEnabled = ALLOWED_DOMAIN !== ''
 

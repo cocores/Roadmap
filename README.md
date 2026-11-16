@@ -34,7 +34,7 @@ Collections: `initiatives/{id}`, `changes/{id}` (change history), `snapshots/{id
 
 ## Turning on sign-in (Microsoft / Outlook accounts)
 
-Sign-in is set to the `bhphoto.com` domain in `src/lib/auth.js` (`ALLOWED_DOMAIN`) and uses Microsoft work accounts.
+Sign-in uses Microsoft work accounts and is **currently off**. After the steps below, set `ALLOWED_DOMAIN` in `src/lib/auth.js` to `'bhphoto.com'` and deploy.
 
 1. **Register an app in Microsoft Entra ID** (Azure portal → Microsoft Entra ID → App registrations → New registration; usually needs IT):
    - Supported account types: **Accounts in this organizational directory only** (single tenant). This is what keeps non-company accounts out.

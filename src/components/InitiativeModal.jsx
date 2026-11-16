@@ -36,6 +36,7 @@ function buildForm(view, initiative, defaultYear) {
       status: STATUSES[0].name,
       health: HEALTH[0].name,
       progress: 0,
+      priority: '',
       impact: '',
       tags: '',
       bucket: TIME_VIEWS[view].buckets[0],
@@ -53,6 +54,7 @@ function buildForm(view, initiative, defaultYear) {
     status: initiative.status,
     health: initiative.health || HEALTH[0].name,
     progress: initiative.progress,
+    priority: initiative.priority ?? '',
     impact: initiative.impact,
     tags: initiative.tags.join(', '),
     bucket: bucketForMonth(initiative.startMonth, view),
@@ -85,6 +87,8 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
       status: form.status,
       health: form.health,
       progress: Number(form.progress),
+      // Blank = unranked. Whole numbers from 1 up; 1 is the top priority.
+      priority: form.priority === '' ? null : Math.max(1, Math.round(Number(form.priority))),
       impact: form.impact.trim(),
       tags: form.tags
         .split(',')
@@ -201,6 +205,18 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
                   </option>
                 ))}
               </select>
+            </Field>
+            <Field label="Priority (1 = highest)">
+              <input
+                type="number"
+                min={1}
+                step={1}
+                inputMode="numeric"
+                value={form.priority}
+                onChange={(e) => update('priority', e.target.value)}
+                className={inputClass}
+                placeholder="Unranked"
+              />
             </Field>
           </div>
 

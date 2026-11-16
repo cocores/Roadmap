@@ -118,6 +118,17 @@ export function bucketForMonth(startMonth, view) {
   return startMonth < 6 ? 'H1' : 'H2'
 }
 
+// Orders the cards inside one time bucket: priority 1 first, then 2, 3...
+// Initiatives without a priority go last, alphabetically.
+export function sortByPriority(cards) {
+  return [...cards].sort((a, b) => {
+    const pa = a.priority ?? Infinity
+    const pb = b.priority ?? Infinity
+    if (pa !== pb) return pa - pb
+    return a.title.localeCompare(b.title)
+  })
+}
+
 export function firstMonthOfBucket(bucket, view) {
   if (view === 'Month') return MONTHS.indexOf(bucket)
   if (view === 'Quarter') return (Number(bucket[1]) - 1) * 3

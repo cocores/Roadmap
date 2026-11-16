@@ -49,9 +49,19 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
       className={`group cursor-grab rounded-2xl border border-l-4 border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-600/10 active:cursor-grabbing light:border-slate-200 light:bg-white light:hover:border-brand-500/60 ${healthBorder}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <h4 className="text-sm font-semibold leading-snug text-slate-100 light:text-slate-900">
-          {initiative.title}
-        </h4>
+        <div className="flex min-w-0 items-start gap-2">
+          {initiative.priority != null && (
+            <span
+              title={`Priority ${initiative.priority}`}
+              className="mt-px flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-brand-600 px-1 text-[11px] font-bold tabular-nums text-white"
+            >
+              {initiative.priority}
+            </span>
+          )}
+          <h4 className="text-sm font-semibold leading-snug text-slate-100 light:text-slate-900">
+            {initiative.title}
+          </h4>
+        </div>
         <div className="flex shrink-0 items-start gap-2">
           <span
             className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusC.badge}`}

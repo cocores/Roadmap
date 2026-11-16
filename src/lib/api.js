@@ -46,6 +46,7 @@ function docToInitiative(snapshot) {
     tags: d.tags ?? [],
     startMonth: d.startMonth,
     year: d.year ?? DEFAULT_YEAR,
+    priority: d.priority ?? null,
     trackerLink: d.trackerLink ?? null,
     confluenceLink: d.confluenceLink ?? null,
     archived: d.archived ?? false,

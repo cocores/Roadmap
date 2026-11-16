@@ -1,6 +1,6 @@
 import { EyeOff, Inbox } from 'lucide-react'
 import { Fragment } from 'react'
-import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, bucketForMonth, journeyColor } from '../data/constants'
+import { COLOR_CLASSES, JOURNEYS, TIME_VIEWS, bucketForMonth, journeyColor, sortByPriority } from '../data/constants'
 import DropZone from './DropZone'
 import InitiativeCard from './InitiativeCard'
 
@@ -58,7 +58,9 @@ export default function Board({
                 ) : (
                   <div className="space-y-3">
                     {buckets.map((bucket) => {
-                      const cards = journeyCards.filter((i) => bucketForMonth(i.startMonth, view) === bucket)
+                      const cards = sortByPriority(
+                        journeyCards.filter((i) => bucketForMonth(i.startMonth, view) === bucket)
+                      )
                       if (cards.length === 0) return null
                       return (
                         <div key={bucket}>
@@ -123,8 +125,10 @@ export default function Board({
                   )}
                 </div>
                 {buckets.map((bucket) => {
-                  const cards = initiatives.filter(
-                    (i) => i.journey === journey.name && bucketForMonth(i.startMonth, view) === bucket
+                  const cards = sortByPriority(
+                    initiatives.filter(
+                      (i) => i.journey === journey.name && bucketForMonth(i.startMonth, view) === bucket
+                    )
                   )
                   return (
                     <DropZone
@@ -162,7 +166,7 @@ export default function Board({
         style={{ gridTemplateColumns: `repeat(${buckets.length}, var(--col))` }}
       >
         {buckets.map((bucket) => {
-          const cards = initiatives.filter((i) => bucketForMonth(i.startMonth, view) === bucket)
+          const cards = sortByPriority(initiatives.filter((i) => bucketForMonth(i.startMonth, view) === bucket))
           return (
             <div key={bucket} className="flex snap-start flex-col">
               <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-800/60 px-3 py-2 light:bg-slate-200/70">

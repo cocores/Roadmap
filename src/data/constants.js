@@ -134,3 +134,32 @@ export function firstMonthOfBucket(bucket, view) {
   if (view === 'Quarter') return (Number(bucket[1]) - 1) * 3
   return bucket === 'H1' ? 0 : 6
 }
+
+// Initiatives without an explicit end month span three months (one quarter's
+// worth) from their start, capped at December.
+export function initiativeEndMonth(initiative) {
+  const end = initiative.endMonth ?? initiative.startMonth + 2
+  return Math.min(11, Math.max(initiative.startMonth, end))
+}
+
+// Human-readable names for fields shown in change history.
+export const FIELD_LABELS = {
+  title: 'Title',
+  description: 'Description',
+  pm: 'PM',
+  journey: 'Journey',
+  coreValue: 'Core value',
+  status: 'Status',
+  health: 'Health',
+  progress: 'Progress',
+  impact: 'Impact',
+  tags: 'Tags',
+  startMonth: 'Start',
+  endMonth: 'End',
+  year: 'Year',
+  priority: 'Priority',
+  blockedBy: 'Blocked by',
+  trackerLink: 'Ticket link',
+  confluenceLink: 'Confluence link',
+  archived: 'Archived',
+}

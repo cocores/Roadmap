@@ -1,5 +1,5 @@
-import { Trash2, X } from 'lucide-react'
-import { useState } from 'react'
+import { History, Trash2, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import {
   CORE_VALUES,
   HEALTH,
@@ -9,9 +9,12 @@ import {
   TIME_VIEWS,
   bucketForMonth,
   firstMonthOfBucket,
+  FIELD_LABELS,
+  MONTHS,
   initiativeYear,
   yearOptions,
 } from '../data/constants'
+import { fetchHistory } from '../lib/api'
 import ConfirmDialog from './ConfirmDialog'
 
 const NO_CORE_VALUE = 'None'
@@ -41,6 +44,8 @@ function buildForm(view, initiative, defaultYear) {
       tags: '',
       bucket: TIME_VIEWS[view].buckets[0],
       year: defaultYear,
+      endMonth: '',
+      blockedBy: [],
       trackerLink: '',
       confluenceLink: '',
     }
@@ -59,6 +64,8 @@ function buildForm(view, initiative, defaultYear) {
     tags: initiative.tags.join(', '),
     bucket: bucketForMonth(initiative.startMonth, view),
     year: initiativeYear(initiative),
+    endMonth: initiative.endMonth ?? '',
+    blockedBy: initiative.blockedBy ?? [],
     trackerLink: initiative.trackerLink || '',
     confluenceLink: initiative.confluenceLink || '',
   }
@@ -66,7 +73,16 @@ function buildForm(view, initiative, defaultYear) {
 
 // Mounted only while open (parent keys it per initiative), so state can
 // initialize straight from props with no reset effect needed.
-export default function InitiativeModal({ view, defaultYear, initiative, onClose, onSave, onArchive }) {
+export default function InitiativeModal({
+  view,
+  defaultYear,
+  initiative,
+  allInitiatives = [],
+  readOnly = false,
+  onClose,
+  onSave,
+  onArchive,
+}) {
   const [form, setForm] = useState(() => buildForm(view, initiative, defaultYear))
   const [confirmArchive, setConfirmArchive] = useState(false)
 
@@ -76,7 +92,8 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!form.title.trim()) return
+    if (readOnly || !form.title.trim()) return
+    const startMonth = firstMonthOfBucket(form.bucket, view)
     onSave({
       id: initiative?.id,
       title: form.title.trim(),
@@ -94,7 +111,10 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean),
-      startMonth: firstMonthOfBucket(form.bucket, view),
+      startMonth,
+      // Blank = automatic (three months from the start).
+      endMonth: form.endMonth === '' ? null : Math.max(startMonth, Number(form.endMonth)),
+      blockedBy: form.blockedBy,
       year: Number(form.year),
       trackerLink: form.trackerLink.trim(),
       confluenceLink: form.confluenceLink.trim(),
@@ -107,18 +127,21 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl sm:p-6 light:border-slate-200 light:bg-white">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-100 light:text-slate-900">
-            {initiative ? 'Edit Initiative' : 'New Initiative'}
+            {readOnly ? 'Initiative' : initiative ? 'Edit Initiative' : 'New Initiative'}
           </h2>
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close"
             className="rounded-full p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 light:hover:bg-slate-100 light:hover:text-slate-700"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
+          {/* A disabled fieldset makes every control read-only for viewers. */}
+          <fieldset disabled={readOnly} className="space-y-4 disabled:opacity-90">
           <Field label="Title">
             <input
               required
@@ -196,6 +219,19 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
             </Field>
           </div>
 
+          <Field label="End month (for the timeline)">
+            <select value={form.endMonth} onChange={(e) => update('endMonth', e.target.value === '' ? '' : Number(e.target.value))} className={inputClass}>
+              <option value="">Auto (3 months from start)</option>
+              {MONTHS.map((m, idx) =>
+                idx >= firstMonthOfBucket(form.bucket, view) ? (
+                  <option key={m} value={idx}>
+                    {m} {form.year}
+                  </option>
+                ) : null
+              )}
+            </select>
+          </Field>
+
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
               <select value={form.status} onChange={(e) => update('status', e.target.value)} className={inputClass}>
@@ -247,6 +283,12 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
               <span className="text-sm font-medium text-slate-300 light:text-slate-700">{form.health}</span>
             </div>
           </div>
+
+          <BlockedByPicker
+            value={form.blockedBy}
+            onChange={(v) => update('blockedBy', v)}
+            options={allInitiatives.filter((i) => !i.archived && i.id !== initiative?.id)}
+          />
 
           <div className="space-y-3 border-t border-slate-800 pt-4 light:border-slate-200">
             <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">Links</span>
@@ -300,7 +342,12 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
             />
           </Field>
 
-          <div className="mt-2 flex items-center justify-between pt-2">
+          </fieldset>
+
+          {initiative && <HistoryList initiativeId={initiative.id} />}
+
+          {!readOnly && (
+          <div className="mt-6 flex items-center justify-between pt-2">
             {initiative ? (
               <button
                 type="button"
@@ -329,6 +376,7 @@ export default function InitiativeModal({ view, defaultYear, initiative, onClose
               </button>
             </div>
           </div>
+          )}
         </form>
       </div>
     </div>
@@ -354,5 +402,100 @@ function Field({ label, children }) {
       <span className="mb-1.5 block text-xs font-medium text-slate-400 light:text-slate-500">{label}</span>
       {children}
     </label>
+  )
+}
+
+function BlockedByPicker({ value, onChange, options }) {
+  const [filter, setFilter] = useState('')
+  const q = filter.trim().toLowerCase()
+  const shown = options
+    .filter((o) => !q || o.title.toLowerCase().includes(q) || value.includes(o.id))
+    .sort((a, b) => Number(value.includes(b.id)) - Number(value.includes(a.id)) || a.title.localeCompare(b.title))
+
+  return (
+    <div>
+      <span className="mb-1.5 block text-xs font-medium text-slate-400 light:text-slate-500">
+        Blocked by {value.length > 0 && `(${value.length})`}
+      </span>
+      <div className="rounded-xl border border-slate-700 light:border-slate-300">
+        <input
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Search initiatives this depends on…"
+          className="w-full rounded-t-xl border-b border-slate-700 bg-transparent px-3 py-2 text-sm text-slate-200 outline-none light:border-slate-300 light:text-slate-800"
+        />
+        <div className="max-h-36 overflow-y-auto py-1">
+          {shown.length === 0 && <p className="px-3 py-2 text-xs text-slate-500">No matches</p>}
+          {shown.map((o) => (
+            <label key={o.id} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800/60 light:text-slate-700 light:hover:bg-slate-100">
+              <input
+                type="checkbox"
+                checked={value.includes(o.id)}
+                onChange={(e) => onChange(e.target.checked ? [...value, o.id] : value.filter((id) => id !== o.id))}
+                className="accent-brand-600"
+              />
+              <span className="truncate">{o.title}</span>
+              <span className="ml-auto shrink-0 text-[11px] text-slate-500">{o.status}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function formatValue(field, value) {
+  if (value == null || value === '') return '—'
+  if (field === 'startMonth' || field === 'endMonth') return MONTHS[value] ?? String(value)
+  if (field === 'progress') return `${value}%`
+  if (Array.isArray(value)) return value.length ? `${value.length} item${value.length > 1 ? 's' : ''}` : '—'
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  const s = String(value)
+  return s.length > 40 ? `${s.slice(0, 40)}…` : s
+}
+
+function HistoryList({ initiativeId }) {
+  const [entries, setEntries] = useState(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    fetchHistory(initiativeId)
+      .then((e) => !cancelled && setEntries(e))
+      .catch((err) => !cancelled && setError(err.message))
+    return () => {
+      cancelled = true
+    }
+  }, [initiativeId])
+
+  return (
+    <details className="mt-5 rounded-xl border border-slate-800 light:border-slate-200">
+      <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <History size={13} /> Change history {entries && `(${entries.length})`}
+      </summary>
+      <div className="max-h-56 space-y-2.5 overflow-y-auto px-3 pb-3 text-xs">
+        {error && <p className="text-amber-500">Couldn&apos;t load history: {error}</p>}
+        {!error && !entries && <p className="text-slate-500">Loading…</p>}
+        {entries?.length === 0 && <p className="text-slate-500">No recorded changes yet.</p>}
+        {entries?.map((e) => (
+          <div key={e.id} className="border-l-2 border-slate-700 pl-2.5 light:border-slate-300">
+            <div className="text-slate-400 light:text-slate-500">
+              {e.at ? e.at.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Just now'} ·{' '}
+              {e.by || 'Someone'}
+            </div>
+            {e.type === 'created' ? (
+              <div className="text-slate-300 light:text-slate-700">Created</div>
+            ) : (
+              e.changes.map((c) => (
+                <div key={c.field} className="text-slate-300 light:text-slate-700">
+                  <span className="font-medium">{FIELD_LABELS[c.field] ?? c.field}:</span> {formatValue(c.field, c.from)} →{' '}
+                  {formatValue(c.field, c.to)}
+                </div>
+              ))
+            )}
+          </div>
+        ))}
+      </div>
+    </details>
   )
 }

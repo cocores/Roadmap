@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// SIGN-IN MODE — publish these once ALLOWED_DOMAIN is set in src/lib/auth.js.
+// Replace example\.com below with your domain (keep the backslash before
+// each dot), then paste into Firebase console → Firestore → Rules → Publish.
+//
+// Editors are listed in the document settings/access, field `editors`
+// (an array of email addresses). Create/edit that document in the console;
+// the app cannot change it.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower().matches('.*@example\\.com$');
+    }
+
+    function isEditor() {
+      return signedIn()
+        && request.auth.token.email.lower()
+           in get(/databases/$(database)/documents/settings/access).data.editors;
+    }
+
+    match /settings/access {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    match /initiatives/{id} {
+      allow read: if signedIn();
+      allow write: if isEditor();
+    }
+    match /changes/{id} {
+      allow read: if signedIn();
+      allow create: if isEditor();
+    }
+    match /snapshots/{id} {
+      allow read: if signedIn();
+      allow create: if isEditor();
+    }
+  }
+}

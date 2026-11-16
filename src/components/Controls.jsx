@@ -3,6 +3,7 @@ import { CORE_VALUES, HEALTH, JOURNEYS, PMS, TIME_VIEWS } from '../data/constant
 import MultiSelect from './MultiSelect'
 
 export default function Controls({
+  page = 'board',
   view,
   onViewChange,
   year,
@@ -25,7 +26,7 @@ export default function Controls({
   const singlePm = pmFilter.length === 1 ? pmFilter[0] : null
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-6 sm:pt-5">
+    <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-6 sm:pt-5 print:hidden">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <div className="flex items-center rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
           <button
@@ -49,22 +50,24 @@ export default function Controls({
           </button>
         </div>
 
-        <div className="flex rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
-          {Object.keys(TIME_VIEWS).map((key) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => onViewChange(key)}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                view === key
-                  ? 'bg-brand-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-100 light:text-slate-500 light:hover:text-slate-800'
-              }`}
-            >
-              {TIME_VIEWS[key].label}
-            </button>
-          ))}
-        </div>
+        {page === 'board' && (
+          <div className="flex rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
+            {Object.keys(TIME_VIEWS).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => onViewChange(key)}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                  view === key
+                    ? 'bg-brand-600 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-100 light:text-slate-500 light:hover:text-slate-800'
+                }`}
+              >
+                {TIME_VIEWS[key].label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <MultiSelect
           label="PM"
@@ -97,14 +100,16 @@ export default function Controls({
           />
         </div>
 
-        <button
-          type="button"
-          onClick={onToggleGroup}
-          className="flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-300 hover:border-slate-600 hover:text-slate-100 light:border-slate-300 light:bg-white light:text-slate-600 light:hover:border-slate-400 light:hover:text-slate-800"
-        >
-          {groupByJourney ? <Rows3 size={15} /> : <LayoutGrid size={15} />}
-          {groupByJourney ? 'Grouped by Journey' : 'Flat Kanban'}
-        </button>
+        {page === 'board' && (
+          <button
+            type="button"
+            onClick={onToggleGroup}
+            className="flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-300 hover:border-slate-600 hover:text-slate-100 light:border-slate-300 light:bg-white light:text-slate-600 light:hover:border-slate-400 light:hover:text-slate-800"
+          >
+            {groupByJourney ? <Rows3 size={15} /> : <LayoutGrid size={15} />}
+            {groupByJourney ? 'Grouped by Journey' : 'Flat Kanban'}
+          </button>
+        )}
       </div>
 
       <p className="mt-3 text-xs text-slate-500 light:text-slate-500">

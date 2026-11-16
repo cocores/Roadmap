@@ -47,6 +47,7 @@ export default function ArchivedPanel({ initiatives, onClose, onRestore }) {
                       <span className="text-[11px] text-slate-500">{initiativeYear(i)}</span>
                     </div>
                   </div>
+                  {onRestore && (
                   <button
                     type="button"
                     onClick={() => onRestore(i.id)}
@@ -55,6 +56,7 @@ export default function ArchivedPanel({ initiatives, onClose, onRestore }) {
                     <ArchiveRestore size={13} />
                     Restore
                   </button>
+                  )}
                 </div>
               )
             })}

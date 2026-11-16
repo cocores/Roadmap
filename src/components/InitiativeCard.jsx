@@ -1,4 +1,5 @@
-import { BookOpen, Link2, Target } from 'lucide-react'
+import { BookOpen, Link2, Lock, Target } from 'lucide-react'
+import { useState } from 'react'
 import { COLOR_CLASSES, coreValueColor, journeyColor, pmColor, statusColor } from '../data/constants'
 
 const HEALTH_BORDER = {
@@ -32,7 +33,15 @@ function StopLight({ health }) {
   )
 }
 
-export default function InitiativeCard({ initiative, onClick, onDragStart, showJourney = true }) {
+export default function InitiativeCard({
+  initiative,
+  onClick,
+  onDragStart,
+  onDropOnCard,
+  blockers = [],
+  showJourney = true,
+}) {
+  const [dropTarget, setDropTarget] = useState(false)
   const pmC = COLOR_CLASSES[pmColor(initiative.pm)]
   const journeyC = COLOR_CLASSES[journeyColor(initiative.journey)]
   const statusC = COLOR_CLASSES[statusColor(initiative.status)]
@@ -42,12 +51,29 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
 
   return (
     <div
-      draggable
-      onDragStart={(e) => onDragStart(e, initiative.id)}
+      draggable={!!onDragStart}
+      onDragStart={onDragStart ? (e) => onDragStart(e, initiative.id) : undefined}
+      // Dropping another card here ranks it directly above this one.
+      onDragOver={onDropOnCard ? (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDropTarget(true)
+      } : undefined}
+      onDragLeave={() => setDropTarget(false)}
+      onDrop={onDropOnCard ? (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDropTarget(false)
+        const id = e.dataTransfer.getData('text/initiative-id')
+        if (id) onDropOnCard(id, initiative.id)
+      } : undefined}
       onClick={() => onClick(initiative)}
       title={initiative.health ? `Health: ${initiative.health}` : undefined}
-      className={`group cursor-grab rounded-2xl border border-l-4 border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-600/10 active:cursor-grabbing light:border-slate-200 light:bg-white light:hover:border-brand-500/60 ${healthBorder}`}
+      className={`group relative ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} rounded-2xl border border-l-4 border-slate-800 bg-slate-900/70 p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500/50 hover:shadow-lg hover:shadow-brand-600/10 light:border-slate-200 light:bg-white light:hover:border-brand-500/60 ${healthBorder}`}
     >
+      {dropTarget && (
+        <div className="pointer-events-none absolute -top-1.5 left-2 right-2 h-1 rounded-full bg-brand-400" />
+      )}
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-2">
           {initiative.priority != null && (
@@ -86,6 +112,15 @@ export default function InitiativeCard({ initiative, onClick, onDragStart, showJ
         {showJourney && (
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${journeyC.badge}`}>
             {initiative.journey}
+          </span>
+        )}
+        {blockers.length > 0 && (
+          <span
+            title={`Blocked by: ${blockers.map((b) => b.title).join(', ')}`}
+            className="flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-medium text-red-300 ring-1 ring-inset ring-red-500/30 light:bg-red-500/10 light:text-red-700"
+          >
+            <Lock size={10} />
+            Blocked by {blockers.length}
           </span>
         )}
         {coreValueC && (

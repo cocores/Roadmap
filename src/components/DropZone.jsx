@@ -5,8 +5,9 @@ export default function DropZone({ onDrop, className = '', children }) {
 
   return (
     <div
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={(e) => onDrop && e.preventDefault()}
       onDragEnter={(e) => {
+        if (!onDrop) return
         e.preventDefault()
         setIsOver(true)
       }}
@@ -15,7 +16,7 @@ export default function DropZone({ onDrop, className = '', children }) {
         e.preventDefault()
         setIsOver(false)
         const id = e.dataTransfer.getData('text/initiative-id')
-        if (id) onDrop(id)
+        if (id && onDrop) onDrop(id)
       }}
       className={`${className} ${
         isOver ? 'ring-2 ring-brand-400/70 bg-brand-500/5' : ''

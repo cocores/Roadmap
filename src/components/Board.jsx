@@ -8,16 +8,28 @@ export default function Board({
   initiatives,
   view,
   groupByJourney,
+  byId = {},
   journeyFilter = [],
   onHideJourney,
   onCardClick,
   onMove,
+  onReorder,
 }) {
   const buckets = TIME_VIEWS[view].buckets
   // With a Journey filter active, only those journeys get a row; otherwise all.
   const visibleJourneys = journeyFilter.length
     ? JOURNEYS.filter((j) => journeyFilter.includes(j.name))
     : JOURNEYS
+
+  // Props every card gets: click to open, drag to move (editors only), drop
+  // onto another card to rank it just above that card.
+  const cardProps = (card) => ({
+    initiative: card,
+    onClick: onCardClick,
+    onDragStart: onMove ? handleDragStart : null,
+    onDropOnCard: onReorder,
+    blockers: (card.blockedBy ?? []).map((id) => byId[id]).filter((b) => b && !b.archived && b.status !== 'Live'),
+  })
 
   function handleDragStart(e, id) {
     e.dataTransfer.setData('text/initiative-id', id)
@@ -71,9 +83,7 @@ export default function Board({
                             {cards.map((card) => (
                               <InitiativeCard
                                 key={card.id}
-                                initiative={card}
-                                onClick={onCardClick}
-                                onDragStart={handleDragStart}
+                                {...cardProps(card)}
                                 showJourney={false}
                               />
                             ))}
@@ -133,15 +143,13 @@ export default function Board({
                   return (
                     <DropZone
                       key={`${journey.name}-${bucket}`}
-                      onDrop={(id) => onMove(id, bucket, journey.name)}
+                      onDrop={onMove ? (id) => onMove(id, bucket, journey.name) : null}
                       className="min-h-[92px] space-y-2 rounded-lg border border-dashed border-slate-800/80 p-2 light:border-slate-200"
                     >
                       {cards.map((card) => (
                         <InitiativeCard
                           key={card.id}
-                          initiative={card}
-                          onClick={onCardClick}
-                          onDragStart={handleDragStart}
+                          {...cardProps(card)}
                           showJourney={false}
                         />
                       ))}
@@ -178,7 +186,7 @@ export default function Board({
                 </span>
               </div>
               <DropZone
-                onDrop={(id) => onMove(id, bucket)}
+                onDrop={onMove ? (id) => onMove(id, bucket) : null}
                 className="flex min-h-[300px] flex-1 flex-col gap-2.5 rounded-xl border border-dashed border-slate-800/80 p-2.5 light:border-slate-200"
               >
                 {cards.length === 0 && (
@@ -190,9 +198,7 @@ export default function Board({
                 {cards.map((card) => (
                   <InitiativeCard
                     key={card.id}
-                    initiative={card}
-                    onClick={onCardClick}
-                    onDragStart={handleDragStart}
+                    {...cardProps(card)}
                   />
                 ))}
               </DropZone>

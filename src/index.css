@@ -47,3 +47,15 @@ html.light {
 .light ::-webkit-scrollbar-thumb {
   background-color: rgb(148 163 184 / 0.6);
 }
+
+/* Stakeholder "PDF" export uses the browser's print dialog. */
+@media print {
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+}

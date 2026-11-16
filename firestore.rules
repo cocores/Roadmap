@@ -1,13 +1,20 @@
 rules_version = '2';
 
-// ⚠️ The app has no sign-in yet, so these rules let anyone with the app's
-// Firebase config read and write the roadmap. Fine for an internal
-// prototype; tighten them (e.g. require request.auth != null) once
-// Firebase Auth is added.
+// OPEN MODE — use while ALLOWED_DOMAIN in src/lib/auth.js is empty.
+// Anyone with the app's Firebase config can read and edit the roadmap.
+// Once sign-in is turned on, publish firestore.auth.rules instead.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /initiatives/{id} {
       allow read, write: if true;
+    }
+    // Change history: append-only.
+    match /changes/{id} {
+      allow read, create: if true;
+    }
+    // Saved roadmap snapshots for "Compare": append-only.
+    match /snapshots/{id} {
+      allow read, create: if true;
     }
   }
 }

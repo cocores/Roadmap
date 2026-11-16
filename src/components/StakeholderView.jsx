@@ -150,7 +150,7 @@ export default function StakeholderView({
 
         <div
           ref={exportRef}
-          className="space-y-5 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm sm:p-6 print:border-0 print:p-0 print:shadow-none"
+          className="min-w-0 space-y-5 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm sm:p-6 print:border-0 print:p-0 print:shadow-none"
         >
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
@@ -170,7 +170,7 @@ export default function StakeholderView({
           {sections.summary}
           {sections.stats}
           {layout === 'timeline' ? sections.timeline : sections.nnl}
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
             {sections.delivered}
             {sections.impact}
           </div>
@@ -294,7 +294,7 @@ function Summary({ initiatives }) {
   )
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_minmax(300px,440px)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(300px,440px)]">
       <div className="flex flex-wrap content-start gap-2">
         <Stat label="Initiatives" value={initiatives.length} />
         {STATUSES.map((s) => (
@@ -316,7 +316,7 @@ function Summary({ initiatives }) {
               <li key={i.id}>
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 shrink-0 rounded-full ${HEALTH_DOT[i.health]}`} />
-                  <span className="truncate font-medium">{i.title}</span>
+                  <span className="min-w-0 truncate font-medium">{i.title}</span>
                   <span className="ml-auto shrink-0 text-xs text-slate-500">{i.pm}</span>
                 </div>
                 {i.statusNote && <p className="ml-4 text-xs text-slate-600">{i.statusNote}</p>}
@@ -389,8 +389,11 @@ function Timeline({ initiatives, byId, year, groupBy, onCardClick }) {
   }
 
   return (
-    <div ref={containerRef} className="relative min-w-[760px]">
-      <div className="grid grid-cols-[180px_1fr] border-b border-slate-200 pb-1 text-xs font-semibold text-slate-500">
+    <div>
+    <p className="mb-2 text-xs text-slate-400 md:hidden print:hidden">Swipe sideways to see the whole year →</p>
+    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <div ref={containerRef} className="relative min-w-[720px]">
+      <div className="grid grid-cols-[120px_1fr] border-b border-slate-200 pb-1 text-xs font-semibold text-slate-500 sm:grid-cols-[180px_1fr]">
         <div />
         <div className="grid grid-cols-4">
           {['Q1', 'Q2', 'Q3', 'Q4'].map((q, idx) => (
@@ -410,8 +413,8 @@ function Timeline({ initiatives, byId, year, groupBy, onCardClick }) {
           (a, b) => a.startMonth - b.startMonth
         )
         return (
-          <div key={name} className="grid grid-cols-[180px_1fr] border-b border-slate-100 py-2 break-inside-avoid">
-            <div className="flex items-start gap-2 pr-3 pt-1 text-sm font-semibold">
+          <div key={name} className="grid grid-cols-[120px_1fr] border-b border-slate-100 py-2 break-inside-avoid sm:grid-cols-[180px_1fr]">
+            <div className="sticky left-0 z-20 flex items-start gap-2 bg-white pr-2 pt-1 text-sm font-semibold sm:pr-3">
               <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${gc.solid}`} />
               {name}
             </div>
@@ -533,6 +536,8 @@ function Timeline({ initiatives, byId, year, groupBy, onCardClick }) {
         )}
       </p>
     </div>
+    </div>
+    </div>
   )
 }
 
@@ -608,17 +613,17 @@ function Delivered({ initiatives, year, onCardClick }) {
         <ul className="divide-y divide-slate-100">
           {live.map((i) => (
             <li key={i.id}>
-              <button type="button" onClick={() => onCardClick(i)} className="flex w-full items-start gap-3 py-2 text-left hover:text-brand-700">
+              <button type="button" onClick={() => onCardClick(i)} className="flex w-full flex-wrap items-start gap-x-3 gap-y-1 py-2 text-left hover:text-brand-700">
                 <span className="mt-0.5 w-14 shrink-0 text-xs font-medium text-slate-400">
                   Q{quarterOf(initiativeEndMonth(i)) + 1} · {MONTHS[initiativeEndMonth(i)]}
                 </span>
-                <span className="min-w-0 flex-1">
+                <span className="min-w-[10rem] flex-1">
                   <span className="block text-sm font-medium">{i.title}</span>
                   <span className="block text-xs text-slate-500">
                     {i.journey} · {i.pm}
                   </span>
                 </span>
-                {i.impact && <span className="shrink-0 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">{i.impact}</span>}
+                {i.impact && <span className="ml-[4.25rem] shrink-0 rounded-full bg-green-50 sm:ml-0 px-2 py-0.5 text-xs font-medium text-green-700">{i.impact}</span>}
               </button>
             </li>
           ))}
@@ -653,9 +658,9 @@ function ImpactRollup({ initiatives, groupBy, onCardClick }) {
                 <ul className="space-y-1 pl-3.5">
                   {sortByPriority(withImpact.filter((i) => group.key(i) === g)).map((i) => (
                     <li key={i.id}>
-                      <button type="button" onClick={() => onCardClick(i)} className="flex w-full items-baseline gap-2 text-left text-sm hover:text-brand-700">
-                        <span className="truncate">{i.title}</span>
-                        <span className="ml-auto shrink-0 font-semibold tabular-nums text-slate-800">{i.impact}</span>
+                      <button type="button" onClick={() => onCardClick(i)} className="flex w-full flex-wrap items-baseline gap-x-2 text-left text-sm hover:text-brand-700">
+                        <span className="w-full truncate sm:w-auto sm:min-w-0 sm:flex-1">{i.title}</span>
+                        <span className="shrink-0 font-semibold tabular-nums text-slate-800 sm:ml-auto">{i.impact}</span>
                         <span className={`shrink-0 text-[11px] ${i.status === 'Live' ? 'text-green-700' : 'text-slate-400'}`}>{i.status}</span>
                       </button>
                     </li>
@@ -728,7 +733,7 @@ function PresetMenu({ settings, canEdit, user, onApply }) {
         <Bookmark size={15} /> Views
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-80 rounded-xl border border-slate-200 bg-white p-2 text-sm text-slate-700 shadow-xl">
+        <div className="absolute left-0 z-40 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white p-2 text-sm text-slate-700 shadow-xl sm:left-auto sm:right-0">
           <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Saved views</p>
           {!presets && !error && <p className="px-2 py-1.5 text-slate-400">Loading…</p>}
           {presets?.length === 0 && <p className="px-2 py-1.5 text-slate-400">No saved views yet.</p>}

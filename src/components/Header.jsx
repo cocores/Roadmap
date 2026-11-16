@@ -83,11 +83,11 @@ export default function Header({
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur print:hidden light:border-slate-200 light:bg-white/80">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:gap-x-4 sm:px-6 sm:py-3.5">
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3 md:flex-none">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-600/20">
             <Map size={18} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-semibold tracking-tight text-slate-100 light:text-slate-900">
               PM Roadmap
             </h1>
@@ -103,13 +103,13 @@ export default function Header({
               key={key}
               type="button"
               onClick={() => onPageChange(key)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition md:flex-none ${
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 sm:px-3 text-sm font-medium transition md:flex-none ${
                 page === key
                   ? 'bg-brand-600 text-white shadow'
                   : 'text-slate-400 hover:text-slate-100 light:text-slate-500 light:hover:text-slate-800'
               }`}
             >
-              <Icon size={15} />
+              <Icon size={15} className="hidden min-[400px]:block" />
               {label}
             </button>
           ))}
@@ -158,7 +158,7 @@ export default function Header({
             >
               <Plus size={16} />
               <span className="hidden sm:inline">New Initiative</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden min-[400px]:inline sm:hidden">New</span>
             </button>
           )}
         </div>

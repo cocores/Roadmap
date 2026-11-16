@@ -114,8 +114,8 @@ export default function CompareView({ initiatives, canEdit, user, onCardClick })
           </label>
 
           {canEdit && (
-            <div className="flex min-w-[220px] flex-1 items-end gap-2">
-              <label className="block flex-1">
+            <div className="flex min-w-[220px] flex-1 flex-wrap items-end gap-2">
+              <label className="block min-w-[12rem] flex-1">
                 <span className="mb-1.5 block text-xs font-medium text-slate-400 light:text-slate-500">New snapshot name</span>
                 <input
                   value={name}

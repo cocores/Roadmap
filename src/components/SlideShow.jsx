@@ -36,10 +36,27 @@ export default function SlideShow({ slides, year, onClose }) {
   }, [go, onClose])
 
   const slide = slides[index]
+  const touchStart = useRef(null)
 
   return (
-    <div ref={rootRef} className="light fixed inset-0 z-[100] flex flex-col bg-white text-slate-900">
-      <div className="flex items-center justify-between border-b border-slate-200 px-6 py-3 text-sm text-slate-500">
+    <div
+      ref={rootRef}
+      className="light fixed inset-0 z-[100] flex flex-col bg-white text-slate-900"
+      onTouchStart={(e) => {
+        touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+      }}
+      onTouchEnd={(e) => {
+        const start = touchStart.current
+        if (!start) return
+        const dx = e.changedTouches[0].clientX - start.x
+        const dy = e.changedTouches[0].clientY - start.y
+        // A clear horizontal swipe changes slide; inside the timeline's own
+        // sideways scroller, swipes scroll it instead.
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && !e.target.closest('.overflow-x-auto')) go(dx < 0 ? 1 : -1)
+        touchStart.current = null
+      }}
+    >
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 text-sm text-slate-500 sm:px-6">
         <span>Product Roadmap {year}</span>
         <div className="flex items-center gap-3">
           <span className="tabular-nums">
@@ -51,17 +68,17 @@ export default function SlideShow({ slides, year, onClose }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto px-6 py-6 sm:px-12 sm:py-8">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-5 sm:px-12 sm:py-8">
         <div className="mx-auto max-w-[1400px]">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-            <h2 className={`${slide.intro ? 'text-4xl' : 'text-3xl'} font-semibold tracking-tight`}>{slide.title}</h2>
+            <h2 className={`${slide.intro ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'} font-semibold tracking-tight`}>{slide.title}</h2>
             {!slide.intro && <Legend />}
           </div>
           <div className={slide.intro ? 'text-lg' : ''}>{slide.body}</div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3">
+      <div className="flex items-center justify-between border-t border-slate-200 px-2 py-3 sm:px-6">
         <button
           type="button"
           onClick={() => go(-1)}

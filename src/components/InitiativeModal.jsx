@@ -150,7 +150,7 @@ export default function InitiativeModal({
 
         <form onSubmit={handleSubmit}>
           {/* A disabled fieldset makes every control read-only for viewers. */}
-          <fieldset disabled={readOnly} className="space-y-4 disabled:opacity-90">
+          <fieldset disabled={readOnly} className="min-w-0 space-y-4 disabled:opacity-90">
           <Field label="Title">
             <input
               required
@@ -455,7 +455,7 @@ function BlockedByPicker({ value, onChange, options }) {
                 onChange={(e) => onChange(e.target.checked ? [...value, o.id] : value.filter((id) => id !== o.id))}
                 className="accent-brand-600"
               />
-              <span className="truncate">{o.title}</span>
+              <span className="min-w-0 truncate">{o.title}</span>
               <span className="ml-auto shrink-0 text-[11px] text-slate-500">{o.status}</span>
             </label>
           ))}
@@ -530,13 +530,13 @@ function MilestonesEditor({ value, onChange, year }) {
       </span>
       <div className="space-y-2">
         {value.map((m, idx) => (
-          <div key={idx} className="flex gap-2">
+          <div key={idx} className="flex flex-wrap gap-2">
             <input
               value={m.name}
               onChange={(e) => setAt(idx, { name: e.target.value })}
               placeholder="e.g. Beta, GA"
               aria-label="Milestone name"
-              className={`${inputClass} flex-1`}
+              className={`${inputClass} min-w-[9rem] flex-1`}
             />
             <input
               type="date"

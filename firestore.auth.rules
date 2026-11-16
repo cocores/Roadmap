@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // SIGN-IN MODE — publish these once ALLOWED_DOMAIN is set in src/lib/auth.js.
-// Replace example\.com below with your domain (keep the backslash before
+// Domain: bhphoto.com. To change it, edit the regex below (keep the backslash before
 // each dot), then paste into Firebase console → Firestore → Rules → Publish.
 //
 // Editors are listed in the document settings/access, field `editors`
@@ -12,7 +12,7 @@ service cloud.firestore {
     function signedIn() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email.lower().matches('.*@example\\.com$');
+        && request.auth.token.email.lower().matches('.*@bhphoto\\.com$');
     }
 
     function isEditor() {

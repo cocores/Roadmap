@@ -15,7 +15,7 @@ import { app } from './firebase'
 //     read-only;
 //   • publish firestore.auth.rules (with the same domain) in the Firebase
 //     console, and enable Google under Authentication → Sign-in method.
-export const ALLOWED_DOMAIN = ''
+export const ALLOWED_DOMAIN = 'bhphoto.com'
 
 export const authEnabled = ALLOWED_DOMAIN !== ''
 

@@ -25,7 +25,7 @@ import {
 import { deletePreset, listPresets, savePreset, saveSummary, subscribeSummary } from '../lib/api'
 import { settingsToQuery, shareUrl } from '../lib/urlState'
 import Legend from './Legend'
-import SlideShow from './SlideShow'
+import StakeholderSlides from './StakeholderSlides'
 import { HEALTH_BAR, HEALTH_DOT, TIMELINE_GROUPS } from '../data/stakeholder'
 
 const toolButton =
@@ -178,17 +178,16 @@ export default function StakeholderView({
       </div>
 
       {slidesOpen && (
-        <SlideShow
+        <StakeholderSlides
+          initiatives={initiatives}
+          byId={byId}
           year={year}
+          summary={summary}
+          // Bars aren't clickable during a presentation (the editor would open
+          // behind the full-screen slides).
+          timeline={<Timeline initiatives={initiatives} byId={byId} year={year} groupBy={groupBy} onCardClick={() => {}} />}
+          nowNextLater={<NowNextLater initiatives={initiativesAllYears} onCardClick={() => {}} />}
           onClose={() => setSlidesOpen(false)}
-          slides={[
-            { title: `Product Roadmap ${year}`, body: sections.summary, intro: true },
-            { title: 'At a glance', body: sections.stats },
-            { title: `Timeline by ${TIMELINE_GROUPS[groupBy].label}`, body: sections.timeline },
-            { title: 'Now / Next / Later', body: sections.nnl },
-            { title: `Delivered in ${year}`, body: sections.delivered },
-            { title: 'Expected impact', body: sections.impact },
-          ]}
         />
       )}
     </div>

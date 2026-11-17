@@ -41,7 +41,7 @@ export default function SlideShow({ slides, year, onClose }) {
   return (
     <div
       ref={rootRef}
-      className="light fixed inset-0 z-[100] flex flex-col bg-white text-slate-900"
+      className="light fixed inset-0 z-[100] flex flex-col bg-paper text-slate-900"
       onTouchStart={(e) => {
         touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
       }}
@@ -56,8 +56,10 @@ export default function SlideShow({ slides, year, onClose }) {
         touchStart.current = null
       }}
     >
-      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 text-sm text-slate-500 sm:px-6">
-        <span>Product Roadmap {year}</span>
+      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 sm:px-6">
+        <span className="truncate">
+          Product Roadmap {year} {!slide.intro && <span className="hidden text-slate-400 sm:inline">· {slide.title}</span>}
+        </span>
         <div className="flex items-center gap-3">
           <span className="tabular-nums">
             {index + 1} / {slides.length}
@@ -71,14 +73,17 @@ export default function SlideShow({ slides, year, onClose }) {
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-5 sm:px-12 sm:py-8">
         <div className="mx-auto max-w-[1400px]">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-            <h2 className={`${slide.intro ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'} font-semibold tracking-tight`}>{slide.title}</h2>
-            {!slide.intro && <Legend />}
+            <h2 className={`${slide.intro ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'} flex items-center gap-3 font-semibold tracking-tight`}>
+              {slide.icon && <slide.icon className="text-brand-600" size={28} />}
+              {slide.title}
+            </h2>
+            {slide.legend && <Legend />}
           </div>
           <div className={slide.intro ? 'text-lg' : ''}>{slide.body}</div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 px-2 py-3 sm:px-6">
+      <div className="flex items-center justify-between border-t border-slate-200 bg-white px-2 py-3 sm:px-6">
         <button
           type="button"
           onClick={() => go(-1)}

@@ -319,7 +319,7 @@ export default function App() {
       {settings.page === 'board' && (
         <>
           {controls}
-          <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-5">
+          <main className="mx-auto max-w-[1600px] px-4 pb-4 sm:px-6 sm:pb-5">
             <Board
               initiatives={filtered}
               byId={byId}

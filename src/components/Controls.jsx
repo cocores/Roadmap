@@ -26,7 +26,7 @@ export default function Controls({
   const singlePm = pmFilter.length === 1 ? pmFilter[0] : null
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-6 sm:pt-5 print:hidden">
+    <div className="mx-auto max-w-[1600px] px-4 pb-4 pt-4 sm:px-6 sm:pt-5 print:hidden">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <div className="flex items-center rounded-full border border-slate-700 bg-slate-800/60 p-1 light:border-slate-300 light:bg-white">
           <button

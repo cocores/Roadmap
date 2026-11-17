@@ -1,4 +1,3 @@
-import { Map } from 'lucide-react'
 import { useState } from 'react'
 import { ALLOWED_DOMAIN, signIn } from '../lib/auth'
 
@@ -21,9 +20,7 @@ export default function SignInScreen({ loading }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 font-sans text-slate-100">
       <div className="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center shadow-2xl">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white">
-          <Map size={22} />
-        </div>
+        <img src="/bh-logo.png" alt="B&H" className="mx-auto h-12 w-12 shrink-0 rounded-full bg-white object-cover shadow-lg shadow-black/20 ring-1 ring-slate-700/50" />
         <h1 className="mt-4 text-lg font-semibold">PM Roadmap</h1>
         {loading ? (
           <p className="mt-2 text-sm text-slate-400">Checking your sign-in…</p>

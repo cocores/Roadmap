@@ -1,4 +1,4 @@
-import { Archive, Download, GitCompareArrows, LayoutDashboard, LogOut, Map, MoreHorizontal, Moon, Plus, Presentation, Sun, Upload } from 'lucide-react'
+import { Archive, Download, GitCompareArrows, LayoutDashboard, LogOut, MoreHorizontal, Moon, Plus, Presentation, Sun, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { signOutUser } from '../lib/auth'
 
@@ -84,9 +84,7 @@ export default function Header({
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur print:hidden light:border-slate-200 light:bg-white/80">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:gap-x-4 sm:px-6 sm:py-3.5">
         <div className="flex min-w-0 flex-1 items-center gap-3 md:flex-none">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-600/20">
-            <Map size={18} />
-          </div>
+          <img src="/bh-logo.png" alt="B&H" className="h-9 w-9 shrink-0 rounded-full bg-white object-cover shadow-lg shadow-black/20 ring-1 ring-slate-700/50" />
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-semibold tracking-tight text-slate-100 light:text-slate-900">
               PM Roadmap
